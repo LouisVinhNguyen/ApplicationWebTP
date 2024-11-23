@@ -24,7 +24,7 @@ app.use(express.static(path.join(__dirname, 'public')));
 
 // Route pour la page HTML qui contient le formulaire
 app.get('/', (req, res) => {
-    res.sendFile(path.join(__dirname, 'public', 'maison.html'));
+    res.sendFile(path.join(__dirname, 'public', 'register.html'));
 });
 
 
@@ -35,7 +35,7 @@ app.get('/', (req, res) => {
 app.get('/api/inscriptions', async (req, res) => {
   try {
     // Sélectionne toutes les inscriptions dans la table "inscriptions"
-    const inscriptions = await db('inscription').select('*');
+    const inscriptions = await db('utilisateurLogin').select('*');
     res.json(inscriptions); // Envoie la liste sous forme de JSON
   } catch (error) {
     // En cas d'erreur, retourne une réponse avec un message d'erreur et un code 500
@@ -48,26 +48,22 @@ app.get('/api/inscriptions', async (req, res) => {
  * Cette route permet de recevoir une inscription via une requête POST.
  */
 app.post('/api/inscriptions', async (req, res) => {
-  // Extraction des champs nom, prenom, email, et telephone depuis le corps de la requête
-  const { nom, prenom, email, telephone } = req.body;
+  const { nom, prenom, email, password } = req.body;
 
-  // Vérifie si tous les champs sont remplis, sinon retourne une erreur 400 (Bad Request)
-  if (!nom || !prenom || !email || !telephone) {
+  if (!nom || !prenom || !email || !password) {
     return res.status(400).json({ message: 'Tous les champs sont obligatoires.' });
   }
 
   try {
-    // Insertion des données dans la table "inscriptions" et récupération de l'ID inséré
-    const [id] = await db('inscription').insert({ nom, prenom, email, telephone });
-
-    // Recherche de l'inscription nouvellement ajoutée pour la renvoyer dans la réponse
-    const inscription = await db('inscription').where({ id }).first();
-    res.status(201).json(inscription); // Retourne l'inscription avec un code 201 (Created)
+    const [id] = await db('utilisateurLogin').insert({ nom, prenom, email, password });
+    const inscription = await db('utilisateurLogin').where({ id }).first();
+    res.status(201).json(inscription);
   } catch (error) {
-    // En cas d'erreur, retourne une réponse avec un message d'erreur et un code 500 (Internal Server Error)
+    console.error("Erreur lors de l'ajout :", error.message);
     res.status(500).json({ message: 'Erreur lors de l’ajout de l’inscription.', error: error.message });
-  }
+}
 });
+
 
 
 
