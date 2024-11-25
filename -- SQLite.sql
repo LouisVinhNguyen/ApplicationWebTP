@@ -10,6 +10,16 @@ CREATE TABLE IF NOT EXISTS utilisateurLogin (
     created_ad TIMESTAMP DEFAULT CURRENT_TIMESTAMP 
 );
 
+PRAGMA table_info(contact);
+
+CREATE TABLE IF NOT EXISTS contact (
+    numMes INTEGER PRIMARY KEY AUTOINCREMENT,
+    nomC TEXT NOT NULL,
+    courriel TEXT NOT NULL,
+    messages TEXT NOT NULL,
+    sent_ad TIMESTAMP DEFAULT CURRENT_TIMESTAMP 
+);
+
 
 
 
