@@ -128,30 +128,24 @@ app.listen(PORT, () => {
 
 app.use(express.json());  // Middleware pour parser les requêtes JSON
 
-// Serve le fichier HTML du formulaire de contact
-app.get('/', (req, res) => {
-  res.sendFile(path.join(__dirname, 'public', 'Contact.html'));
-});
-
+/**
+ * Route POST : Ajouter un nouveau message de contact
+ * Cette route permet de recevoir un message via une requête POST.
+ */
 app.post('/api/contact', async (req, res) => {
-  const { nomC, courriel, messages } = req.body;
-
-  // Validation des champs
+  const { nomC,  courriel, messages } = req.body;
+  console.log("Request received:", req.body);
   if (!nomC || !courriel || !messages) {
     return res.status(400).json({ message: 'Tous les champs sont obligatoires.' });
   }
 
   try {
-    // Insertion du message dans la table contact
-    const [numMes] = await db('contact').insert({ nomC, courriel, messages });
-
-    // Récupération du message inséré
+    const [numMes] = await db('contact').insert({ nomC, courriel , messages });
     const contact = await db('contact').where({ numMes }).first();
-
-    // Réponse avec le message inséré
     res.status(201).json(contact);
   } catch (error) {
-    console.error("Erreur lors de l'ajout du message :", error.message);
-    res.status(500).json({ message: 'Erreur lors de l’ajout du message.', error: error.message });
-  }
+    console.error("Erreur lors de l'ajout :", error.message);
+    res.status(500).json({ message: 'Erreur lors de l’envoi du message.', error: error.message });
+}
 });
+
