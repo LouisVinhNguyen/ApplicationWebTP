@@ -1,88 +1,86 @@
 <!DOCTYPE HTML>
-
 <html>
 
 <head>
-
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@0.9.3/css/bulma.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css">
 </head>
 
 <header>
+    <nav class="navbar" role="navigation" aria-label="main navigation">
+        <div class="navbar-brand">
+            <a class="navbar-item" href="./index.html">
+                <p class="title">Historia</p>
+            </a>
 
-<nav class="navbar" role="navigation" aria-label="main navigation">
-  <div class="navbar-brand">
-    <a class="navbar-item" href="./index.html">
-        <p class="title">Historia</p>
-    </a>
-
-    <a role="button" class="navbar-burger" aria-label="menu" aria-expanded="false" data-target="navbarBasicExample">
-      <span aria-hidden="true"></span>
-      <span aria-hidden="true"></span>
-      <span aria-hidden="true"></span>
-      <span aria-hidden="true"></span>
-    </a>
-  </div>
-
-  <div id="navbarBasicExample" class="navbar-menu">
-    <div class="navbar-start">
-      <a href="./index.html" class="navbar-item">
-        Acceuil
-      </a>
-
-      <a href="./21.html" class="navbar-item">
-        21ème siecle
-      </a>
-      <a href="./20.html" class="navbar-item">
-        20ème siecle
-      </a>
-      <a href="./19.html" class="navbar-item">
-        19ème siecle
-      </a>
-      <a href="./18.html" class="navbar-item">
-        18ème siecle
-      </a>
-
-
-      <div class="navbar-item has-dropdown is-hoverable">
-        <a class="navbar-link">
-          More
-        </a>
-
-        <div class="navbar-dropdown">
-
-          <a href="./Contact.html" class="navbar-item">
-            Contact
-          </a>
+            <a role="button" class="navbar-burger" aria-label="menu" aria-expanded="false" data-target="navbarBasicExample">
+                <span aria-hidden="true"></span>
+                <span aria-hidden="true"></span>
+                <span aria-hidden="true"></span>
+                <span aria-hidden="true"></span>
+            </a>
         </div>
-      </div>
-    </div>
 
-    <div class="navbar-end">
-      <div class="navbar-item">
-        <div class="buttons">
-          <a class="button is-primary" href="./register.html">
-            <strong>Sign up</strong>
-          </a>
-          <a class="button is-light" href="./login.html">
-            Log in
-          </a>
+        <div id="navbarBasicExample" class="navbar-menu">
+            <div class="navbar-start">
+                <a href="./index.html" class="navbar-item">Acceuil</a>
+                <a href="./21.html" class="navbar-item">21ème siecle</a>
+                <a href="./20.html" class="navbar-item">20ème siecle</a>
+                <a href="./19.html" class="navbar-item">19ème siecle</a>
+                <a href="./18.html" class="navbar-item">18ème siecle</a>
+
+                <div class="navbar-item has-dropdown is-hoverable">
+                    <a class="navbar-link">More</a>
+                    <div class="navbar-dropdown">
+                        <a href="./Contact.html" class="navbar-item">Contact</a>
+                    </div>
+                </div>
+            </div>
+
+            <div class="navbar-end">
+                <div class="navbar-item">
+                    <div class="buttons">
+                        <a class="button is-primary" href="./register.html"><strong>Sign up</strong></a>
+                        <a class="button is-light" href="./login.html">Log in</a>
+                    </div>
+                </div>
+            </div>
         </div>
-      </div>
-    </div>
-  </div>
-</nav>
-
+    </nav>
 </header>
+
 <body>
     <article class="message">
         <div class="message-header">
-          <p>Admin</p>
-          <button class="delete" aria-label="delete"></button>
+            <p>Admin</p>
         </div>
         <div class="message-body">
-            Tu es dans le compte admin tu as donc acces a plus d'option. C'est a partir de ce compte que nous pouvons donner le droit admin a dautre compte. Pour le faire il faut juste cocher la case admin a cote du compte que vous souhaitez ameliorer.
+            Tu es dans le compte admin tu as donc accès à plus d'option. C'est à partir de ce compte que nous pouvons donner le droit admin à d'autres comptes. Pour le faire il faut juste cocher la case admin à côté du compte que vous souhaitez améliorer.
         </div>
-      </article>
-</body>
+    </article>
+    <div class="field">
+        <label class="label">Nom de l'admin</label>
+        <div class="control has-icons-left">
+          <input class="input" type="text" placeholder="Nom de l'admin">
+          <span class="icon is-small is-left">
+            <i class="fas fa-user"></i>
+          </span>
+        </div>
+      </div>
+      <div class="field">
+        <label class="label">Nom de L'auteur</label>
+        <div class="control has-icons-left has-icons-right">
+          <input class="input" type="text" placeholder="Nom de l'auteur" value="">
+          <span class="icon is-small is-left">
+            <i class="fas fa-user"></i>
+          </span>
 
+        </div>
+      </div>
+      <div class="field">
+        <label class="label">Message</label>
+        <div class="control">
+          <textarea class="textarea" placeholder="Textarea"></textarea>
+        </div>
+      </div>
 </html>
