@@ -10,8 +10,6 @@ const db = require('./knex');
 // Création d'une instance de l'application Express
 const app = express();
 
-const bcrypt = require('bcrypt');
-
 // Définition du port sur lequel le serveur va écouter les requêtes
 const PORT = 3000;
 
@@ -85,7 +83,7 @@ app.post('/api/inscriptions', async (req, res) => {
 
   if (!(password == repeatPassword)) {
     return res.status(400).json({ message: "Les mots de passe doivent correspondre."});
-}
+  }
 
   try {
     const [id] = await db('utilisateurLogin').insert({ nom, prenom, email, password });
@@ -168,7 +166,7 @@ app.post('/api/login', async (req, res) => {
   const { email, password } = req.body;
 
   if (!email || !password) {
-      return res.status(400).json({ message: 'Tous les champs sont obligatoires.' });
+    return res.status(400).json({ message: 'Tous les champs sont obligatoires.' });
   }
 
   // Validate email format
@@ -185,7 +183,7 @@ app.post('/api/login', async (req, res) => {
       }
 
       // Compare the password (ensure you are using hashed passwords in your database)
-      const isPasswordCorrect = await bcrypt.compare(password, user.password);
+      const isPasswordCorrect = (password === user.password);
 
       if (!isPasswordCorrect) {
           return res.status(401).json({ message: 'Mot de passe incorrect.' });

@@ -1,6 +1,8 @@
-document.addEventListener('DOMContentLoaded', function() {
+inscriptionForm = document.getElementById("inscriptionForm")
 
-    document.getElementById("inscriptionForm").addEventListener("submit", function(event) {
+if (inscriptionForm) {
+
+    inscriptionForm.addEventListener("submit", function(event) {
         event.preventDefault();  // Empêche la soumission du formulaire
         
         // Récupération des valeurs du formulaire
@@ -31,92 +33,109 @@ document.addEventListener('DOMContentLoaded', function() {
         enregisterInscription(inscription);
         document.getElementById("inscriptionForm").reset();
     });
+} else {
+    // The form does not exist on this page, so we can safely ignore it.
+    console.log("No form with id 'inscriptionForm' on this page.");
+};
 
-    function enregisterInscription(inscription) {
-        fetch('/api/inscriptions', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(inscription)
-        })
-        .then(response => {
-            if (!response.ok) {
-                return response.json().then(errorData => {
-                    throw new Error(errorData.message || 'Une erreur est survenue.');
-                });
-            }
-            return response.json();
-        })
-        .then(inscriptionFromServeur => {
-            console.log('Inscription réussie :', inscriptionFromServeur);
-            // Rediriger vers login.html après succès
-            window.location.href = 'login.html';
-        })
-        .catch(error => {
-            if (error.message === 'Failed to fetch') {
-                console.error('Erreur : Impossible de se connecter au serveur.');
-                alert('Le serveur est inaccessible. Vérifiez votre connexion ou réessayez plus tard.');
-            } 
-            else {
-                // Gérer d'autres types d'erreurs
-                console.error('Erreur lors de l\'enregistrement de l\'inscription :', error);
-                alert(`Une erreur s'est produite : ${error.message}`);
-            }
-        });
-    }
+function enregisterInscription(inscription) {
+    fetch('/api/inscriptions', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(inscription)
+    })
+    .then(response => {
+        if (!response.ok) {
+            return response.json().then(errorData => {
+                throw new Error(errorData.message || 'Une erreur est survenue.');
+            });
+        }
+        return response.json();
+    })
+    .then(inscriptionFromServeur => {
+        console.log('Inscription réussie :', inscriptionFromServeur);
+        // Rediriger vers login.html après succès
+        window.location.href = 'login.html';
+    })
+    .catch(error => {
+        if (error.message === 'Failed to fetch') {
+            console.error('Erreur : Impossible de se connecter au serveur.');
+            alert('Le serveur est inaccessible. Vérifiez votre connexion ou réessayez plus tard.');
+        } 
+        else {
+            // Gérer d'autres types d'erreurs
+            console.error('Erreur lors de l\'enregistrement de l\'inscription :', error);
+            alert(`Une erreur s'est produite : ${error.message}`);
+        }
+    });
+}
 
-    document.getElementById("loginForm").addEventListener("submit", function(event) {
+loginForm = document.getElementById("loginForm")
+
+if (loginForm) {
+
+    loginForm.addEventListener("submit", function(event) {
         event.preventDefault();  // Prevent form from submitting
-    
+
         // Grab values from the form
         const login = {
             email: document.getElementById("email").value,
             password: document.getElementById("password").value
         };
-    
+
         // Check if both fields are filled
         if (!login.email || !login.password) {
             alert("Veuillez remplir tous les champs.");
             return;
         }
-    
+
         // Validate email format
         if (!validateEmail(login.email)) {
             alert("L'adresse email saisie n'est pas valide.");
             return;
         }
 
-        console.log("Form validation passed, calling loginUser...");
-    
+        console.log("Form validation passed, calling loginUser with data:", login);
+
         // Call function to verify user credentials
         loginUser(login);
     });
-    
-    function loginUser(login) {
-        fetch('/api/login', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(login)
-        })
-        .then(response => {
-            if (!response.ok) {
-                return response.json().then(errorData => {
-                    throw new Error(errorData.message || 'Erreur de connexion.');
-                });
-            }
-            return response.json();
-        })
-        .then(data => {
-            console.log('Login successful:', data);
-            // Redirect to home page or user dashboard
-            window.location.href = 'home.html';
-        })
-        .catch(error => {
-            console.error('Login error:', error);
-            alert(error.message);
-        });
-    }
-    
-    document.getElementById("messageContact").addEventListener("submit", function(event) {
+
+} else {
+    // The form does not exist on this page, so we can safely ignore it.
+    console.log("No form with id 'messageContact' on this page.");
+};
+
+function loginUser(login) {
+    fetch('/api/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(login)
+    })
+    .then(response => {
+        if (!response.ok) {
+            return response.json().then(errorData => {
+                throw new Error(errorData.message || 'Erreur de connexion.');
+            });
+        }
+        return response.json();
+    })
+    .then(data => {
+        console.log('Login successful:', data);
+        // Redirect to home page or user dashboard
+        window.location.href = 'index.html';
+    })
+    .catch(error => {
+        console.error('Error during login:', error);
+        alert(`Une erreur s'est produite : ${error.message}`);
+    });
+}
+
+contactForm = document.getElementById("messageContact")
+
+if (contactForm) {
+
+    contactForm.addEventListener("submit", function(event) {
         event.preventDefault();  // Empêche la soumission du formulaire
         
         const contact = {
@@ -126,6 +145,11 @@ document.addEventListener('DOMContentLoaded', function() {
         };
 
         console.log(contact);
+
+        if (contact.nomC) {
+            alert("Flag #1");
+            return;
+        }
 
         // Vérification simple que tous les champs sont remplis
         if (!contact.nomC || !contact.courriel || !contact.messages) {  
@@ -142,39 +166,42 @@ document.addEventListener('DOMContentLoaded', function() {
         document.getElementById("messageContact").reset();
     });
 
-    function enregistrerMessage(contact) {
-        fetch('/api/contact', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(contact)
-        })
-        .then(response => {
-            if (!response.ok) {
-                return response.json().then(errorData => {
-                    throw new Error(errorData.message || 'Une erreur est survenue.');
-                });
-            }
-            return response.json();
-        })
-        .then(messageFromServeur => {
-            console.log('Message envoyé :', messageFromServeur);
-            // Rediriger vers index.html après succès
-            window.location.href = './index.html';
-        })
-        .catch(error => {
-            if (error.message === 'Failed to fetch') {
-                console.error('Erreur : Impossible de se connecter au serveur.');
-                alert('Le serveur est inaccessible. Vérifiez votre connexion ou réessayez plus tard.');
-            } 
-            else {
-                // Gérer d'autres types d'erreurs
-                console.error('Erreur lors de l\'enregistrement de l\'inscription :', error);
-                alert(`Une erreur s'est produite : ${error.message}`);
-            }
-        });
-    }
+} else {
+    // The form does not exist on this page, so we can safely ignore it.
+    console.log("No form with id 'messageContact' on this page.");
+};
 
-});
+function enregistrerMessage(contact) {
+    fetch('/api/contact', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(contact)
+    })
+    .then(response => {
+        if (!response.ok) {
+            return response.json().then(errorData => {
+                throw new Error(errorData.message || 'Une erreur est survenue.');
+            });
+        }
+        return response.json();
+    })
+    .then(messageFromServeur => {
+        console.log('Message envoyé :', messageFromServeur);
+        // Rediriger vers index.html après succès
+        window.location.href = './index.html';
+    })
+    .catch(error => {
+        if (error.message === 'Failed to fetch') {
+            console.error('Erreur : Impossible de se connecter au serveur.');
+            alert('Le serveur est inaccessible. Vérifiez votre connexion ou réessayez plus tard.');
+        } 
+        else {
+            // Gérer d'autres types d'erreurs
+            console.error('Erreur lors de l\'enregistrement de l\'inscription :', error);
+            alert(`Une erreur s'est produite : ${error.message}`);
+        }
+    });
+}
 
 function validateEmail(email) {
 
