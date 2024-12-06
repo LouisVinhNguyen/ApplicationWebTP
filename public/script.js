@@ -34,7 +34,6 @@ if (inscriptionForm) {
         document.getElementById("inscriptionForm").reset();
     });
 } else {
-    // The form does not exist on this page, so we can safely ignore it.
     console.log("No form with id 'inscriptionForm' on this page.");
 };
 
@@ -216,3 +215,4 @@ function valideTelephone(telephone) {
 
     return telephonePattern.test(telephone)
 }
+
