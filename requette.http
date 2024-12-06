@@ -1,0 +1,71 @@
+# Test 1: Ajouter une inscription valide
+# Résultat attendu : 201 Created avec un message de confirmation et les détails de l'inscription ajoutée.
+curl -X POST http://localhost:3000/api/inscriptions \
+-H "Content-Type: application/json" \
+-d '{"nom": "Encarnacion", "prenom": "Lorry James", "email": "ljencarnacion@gmail.com", "password": "1234", "repeatPassword": "1234"}'
+
+###
+# Test 2: Ajouter une inscription avec un champ manquant
+# Résultat attendu : 400 Bad Request avec un message d'erreur spécifiant que le champ "prenom" est requis.
+curl -X POST http://localhost:3000/api/inscriptions \
+-H "Content-Type: application/json" \
+-d '{"nom": "Doe", "prenom": "John", "email": "JohnDoe@gmail.com", "password": "1234", "repeatPassword": ""}'
+
+###
+# Test 3: Ajouter une inscription avec une adresse email invalide
+# Résultat attendu : 400 Bad Request avec un message d'erreur sur le format du champ "email".
+curl -X POST http://localhost:3000/api/inscriptions \
+-H "Content-Type: application/json" \
+-d '{"nom": "Encarnacion", "prenom": "Lorry James", "email": "invalid-email", "password": "1234", "repeatPassword": "1234"}'
+
+###
+# Test 4: Ajouter une inscription avec un email déjà existant
+# Résultat attendu : 409 Conflict avec un message d'erreur indiquant que l'email est déjà utilisé.
+curl -X POST http://localhost:3000/api/inscriptions \
+-H "Content-Type: application/json" \
+-d '{"nom": "Name", "prenom": "Test", "email": "ljencarnacion@gmail.com", "password": "1234", "repeatPassword": "1234"}'
+###
+# Test 5: Modifier une inscription existante (valide)
+# Résultat attendu : 200 OK avec un message de confirmation et les détails mis à jour.
+curl -X PUT http://localhost:3000/api/inscriptions/1 \
+-H "Content-Type: application/json" \
+-d '{"nom": "Updated Name", "prenom": "Updated Prenom", "email": "updated_email@gmail.com", "password": "1234"}'
+
+###
+# Test 6: Modifier une inscription avec un champ manquant
+# Résultat attendu : 400 Bad Request avec un message d'erreur spécifiant que le champ "nom" est requis.
+curl -X PUT http://localhost:3000/api/inscriptions/1 \
+-H "Content-Type: application/json" \
+-d '{"nom": "", "prenom": "Updated Prenom", "email": "updated_email@gmail.com", "password": "1234"}'
+
+###
+# Test 8: Modifier une inscription qui n'existe pas
+# Résultat attendu : 404 Not Found avec un message d'erreur indiquant que l'inscription n'existe pas.
+curl -X PUT http://localhost:3000/api/inscriptions/9999 \
+-H "Content-Type: application/json" \
+-d '{"nom": "Nonexistent", "prenom": "User", "email": "nonexistent_user@gmail.com", "telephone": "123 456 7890"}'
+
+###
+# Test 9: Supprimer une inscription existante
+# Résultat attendu : 200 OK avec un message de confirmation indiquant que l'inscription a été supprimée.
+curl -X DELETE http://localhost:3000/api/inscriptions/1
+
+###
+# Test 10: Supprimer une inscription qui n'existe pas
+# Résultat attendu : 404 Not Found avec un message d'erreur indiquant que l'inscription n'existe pas.
+curl -X DELETE http://localhost:3000/api/inscriptions/9999
+
+###
+# Test 11: Effectuer une recherche avec un critère valide
+# Résultat attendu : 201 Created avec un message de confirmation et les détails de l'inscription ajoutée.
+curl -X POST http://localhost:3000/api/inscriptions \
+-H "Content-Type: application/json" \
+-d '{"nom": "Doe", "prenom": "John", "email": "JohnDoe@email.com", "telephone": "434 231 9878"}'
+###
+curl -X GET http://localhost:3000/api/inscriptions?nom=Doe
+
+###
+# Test 12: Effectuer une recherche avec un critère invalide
+# Résultat attendu : 400 Bad Request avec un message d'erreur indiquant que le critère "nom" ne peut pas être vide.
+curl -X GET http://localhost:3000/api/inscriptions?nom=
+

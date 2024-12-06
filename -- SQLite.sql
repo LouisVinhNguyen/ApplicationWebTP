@@ -1,5 +1,4 @@
 -- SQLite
-PRAGMA table_info(utilisateurLogin);
 
 CREATE TABLE IF NOT EXISTS utilisateurLogin (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -10,7 +9,7 @@ CREATE TABLE IF NOT EXISTS utilisateurLogin (
     created_ad TIMESTAMP DEFAULT CURRENT_TIMESTAMP 
 );
 
-PRAGMA table_info(contact);
+
 
 CREATE TABLE IF NOT EXISTS contact (
     numMes INTEGER PRIMARY KEY AUTOINCREMENT,

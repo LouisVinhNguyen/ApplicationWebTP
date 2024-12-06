@@ -10,6 +10,8 @@ const db = require('./knex');
 // Création d'une instance de l'application Express
 const app = express();
 
+const bcrypt = require('bcrypt');
+
 // Définition du port sur lequel le serveur va écouter les requêtes
 const PORT = 3000;
 
@@ -34,11 +36,34 @@ app.get('/', (req, res) => {
  */
 app.get('/api/inscriptions', async (req, res) => {
   try {
-    // Sélectionne toutes les inscriptions dans la table "inscriptions"
-    const inscriptions = await db('utilisateurLogin').select('*');
-    res.json(inscriptions); // Envoie la liste sous forme de JSON
+    // Obtenir les paramètres de la requête
+    const queryParams = req.query;
+
+    // Liste des champs valides pour la table "inscription"
+    const validFields = ['nom', 'prenom', 'email', 'password', 'id'];
+
+    // Vérification : assurez-vous que tous les champs spécifiés ne sont pas vides
+    for (const [key, value] of Object.entries(queryParams)) {
+      if (validFields.includes(key) && (!value || value.trim() === '')) {
+        return res.status(400).json({ message: `Le champ '${key}' ne peut pas être vide.` });
+      }
+    }
+
+    // Construire la requête filtrée
+    const filters = {};
+    validFields.forEach((field) => {
+      if (queryParams[field]) {
+        filters[field] = queryParams[field];
+      }
+    });
+
+    // Exécuter la requête filtrée
+    const inscriptions = await db('utilisateurLogin').where(filters).select('*');
+
+    // Retourner les inscriptions trouvées
+    res.json(inscriptions);
   } catch (error) {
-    // En cas d'erreur, retourne une réponse avec un message d'erreur et un code 500
+    // Gérer les erreurs
     res.status(500).json({ message: 'Erreur lors de la récupération des inscriptions.', error: error.message });
   }
 });
@@ -48,23 +73,32 @@ app.get('/api/inscriptions', async (req, res) => {
  * Cette route permet de recevoir une inscription via une requête POST.
  */
 app.post('/api/inscriptions', async (req, res) => {
-  const { nom, prenom, email, password } = req.body;
+  const { nom, prenom, email, password, repeatPassword } = req.body;
 
-  if (!nom || !prenom || !email || !password) {
+  if (!nom || !prenom || !email || !password || !repeatPassword) {
     return res.status(400).json({ message: 'Tous les champs sont obligatoires.' });
   }
+
+  if (!validateEmail(email)) {
+    return res.status(400).json({ message: "L'adresse email est invalide." });
+  }
+
+  if (!(password == repeatPassword)) {
+    return res.status(400).json({ message: "Les mots de passe doivent correspondre."});
+}
 
   try {
     const [id] = await db('utilisateurLogin').insert({ nom, prenom, email, password });
     const inscription = await db('utilisateurLogin').where({ id }).first();
     res.status(201).json(inscription);
   } catch (error) {
-    console.error("Erreur lors de l'ajout :", error.message);
-    res.status(500).json({ message: 'Erreur lors de l’ajout de l’inscription.', error: error.message });
-}
+    if (error.code === 'SQLITE_CONSTRAINT') {
+        return res.status(409).json({ message: "L'email est déjà utilisé." });
+    }
+    res.status(500).json({ message: 'Erreur lors de l’ajout de l’inscription.' });
+  }
+
 });
-
-
 
 
 /**
@@ -76,11 +110,15 @@ app.put('/api/inscriptions/:id', async (req, res) => {
   const { id } = req.params;
 
   // Extraction des champs modifiés depuis le corps de la requête (req.body)
-  const { nom, prenom, email, telephone } = req.body;
+  const { nom, prenom, email, password } = req.body;
+
+  if (!nom || !prenom || !email || !password) {
+    return res.status(400).json({ message: 'Tous les champs sont obligatoires.' });
+  }
 
   try {
     // Met à jour l'inscription correspondant à l'ID donné
-    const updated = await db('inscription').where({ id }).update({ nom, prenom, email, telephone });
+    const updated = await db('utilisateurLogin').where({ id }).update({ nom, prenom, email, password });
 
     // Si aucune inscription n'est trouvée avec cet ID, retourne une erreur 404 (Not Found)
     if (!updated) {
@@ -88,7 +126,7 @@ app.put('/api/inscriptions/:id', async (req, res) => {
     }
 
     // Récupère et renvoie l'inscription mise à jour
-    const inscription = await db('inscription').where({ id }).first();
+    const inscription = await db('utilisateurLogin').where({ id }).first();
     res.json(inscription);
   } catch (error) {
     // En cas d'erreur, retourne une réponse avec un message d'erreur et un code 500
@@ -106,7 +144,7 @@ app.delete('/api/inscriptions/:id', async (req, res) => {
 
   try {
     // Supprime l'inscription correspondant à l'ID donné
-    const deleted = await db('inscription').where({ id }).del();
+    const deleted = await db('utilisateurLogin').where({ id }).del();
 
     // Si aucune inscription n'est trouvée avec cet ID, retourne une erreur 404
     if (!deleted) {
@@ -120,6 +158,48 @@ app.delete('/api/inscriptions/:id', async (req, res) => {
     res.status(500).json({ message: 'Erreur lors de la suppression de l’inscription.', error: error.message });
   }
 });
+
+/**
+ * Route POST : Login par email
+ * Cette route permet de confirmer que l'utilisateur existe dans la base de données et le connecte
+ */
+
+app.post('/api/login', async (req, res) => {
+  const { email, password } = req.body;
+
+  if (!email || !password) {
+      return res.status(400).json({ message: 'Tous les champs sont obligatoires.' });
+  }
+
+  // Validate email format
+  if (!validateEmail(email)) {
+      return res.status(400).json({ message: "L'adresse email est invalide." });
+  }
+
+  try {
+      // Find user by email
+      const user = await db('utilisateurLogin').where({ email }).first();
+
+      if (!user) {
+          return res.status(404).json({ message: 'Utilisateur non trouvé.' });
+      }
+
+      // Compare the password (ensure you are using hashed passwords in your database)
+      const isPasswordCorrect = await bcrypt.compare(password, user.password);
+
+      if (!isPasswordCorrect) {
+          return res.status(401).json({ message: 'Mot de passe incorrect.' });
+      }
+
+      // If login is successful, return user data or a success message
+      res.status(200).json({ message: 'Connexion réussie', user });
+  } catch (error) {
+      console.error('Login error:', error);
+      res.status(500).json({ message: 'Erreur serveur.' });
+  }
+});
+
+
 
 // Démarre le serveur et écoute les requêtes sur le port défini
 app.listen(PORT, () => {
@@ -135,8 +215,13 @@ app.use(express.json());  // Middleware pour parser les requêtes JSON
 app.post('/api/contact', async (req, res) => {
   const { nomC,  courriel, messages } = req.body;
   console.log("Request received:", req.body);
+
   if (!nomC || !courriel || !messages) {
     return res.status(400).json({ message: 'Tous les champs sont obligatoires.' });
+  }
+
+  if (!validateEmail(courriel)) {
+    return res.status(400).json({ message: "L'adresse email est invalide." });
   }
 
   try {
@@ -149,3 +234,16 @@ app.post('/api/contact', async (req, res) => {
 }
 });
 
+function validateEmail(email) {
+
+  const emailPattern = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+  
+  return emailPattern.test(email);
+}
+
+function valideTelephone(telephone) {
+
+  telephonePattern = /^\s*(?:\+?(\d{1,3}))?[-. (]*(\d{3})[-. )]*(\d{3})[-. ]*(\d{4})(?: *x(\d+))?\s*$/;
+
+  return telephonePattern.test(telephone)
+}
