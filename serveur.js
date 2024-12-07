@@ -29,6 +29,17 @@ app.get('/', (req, res) => {
     res.sendFile(path.join(__dirname, 'public', 'register.html'));
 });
 
+// Define the checkAdmin middleware function
+function checkAdmin(req, res, next) {
+  const user = req.user; // Assuming the user is attached to the request (from authentication)
+
+  if (!user || user.role !== 'admin') {
+      return res.status(403).json({ message: 'Accès interdit. Vous devez être un administrateur.' });
+  }
+
+  next(); // If the user is an admin, move to the next middleware or route handler
+}
+
 
 /**
  * Route GET : Récupérer toutes les inscriptions
@@ -74,7 +85,7 @@ app.get('/api/inscriptions', async (req, res) => {
  */
 app.post('/api/register', async (req, res) => {
   const { username, email, password, repeatPassword } = req.body;
-  const defaultRole = "user";
+  const defaultRole = "admin";
 
   if (!username || !email || !password || !repeatPassword) {
     return res.status(400).json({ message: 'Tous les champs sont obligatoires.' });
@@ -264,3 +275,26 @@ function valideUsername(username) {
 
   return usernamePattern.test(username)
 }
+
+app.post('/api/articles', async (req, res) => {
+  const { title, content, image_url } = req.body;
+
+  if (!title || !content) {
+      return res.status(400).json({ message: 'Le titre et le contenue sont obligatoire.' });
+  }
+
+  try {
+      // Insert the article into the database
+      const [articleId] = await db('articles').insert({
+          title,
+          content,
+          image_url, // Optional
+      });
+
+      const newArticle = await db('articles').where({ id: articleId }).first();
+      res.status(201).json({ message: 'Article created successfully', article: newArticle });
+  } catch (error) {
+      console.error('Error creating article:', error);
+      res.status(500).json({ message: 'Error creating article', error: error.message });
+  }
+});

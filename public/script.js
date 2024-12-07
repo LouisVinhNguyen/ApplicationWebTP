@@ -1,5 +1,7 @@
 // Authentification routes (POST /api/register, POST /api/login, POST /api/logout)
 
+const { userInfo } = require("os");
+
 inscriptionForm = document.getElementById("inscriptionForm")
 
 if (inscriptionForm) {
@@ -36,6 +38,7 @@ if (inscriptionForm) {
 
         // Appel de la fonction ajouter pour insérer une nouvelle ligne dans le tableau et dans la base de donnees
         enregisterInscription(inscription);
+        document.getElementById("inscriptionForm").reset();
     });
 } else {
     console.log("No form with id 'inscriptionForm' on this page.");
@@ -250,3 +253,139 @@ function valideUsername(username) {
     return usernamePattern.test(username)
 }
 
+
+
+function redirectIfNotAdmin() {
+    const loggedInUser = JSON.parse(localStorage.getItem('user'));
+
+    if (loggedInUser.role !== 'admin') {
+        window.location.href = '/'; // Redirect to homepage if not an admin
+    }
+}
+document.getElementById('articleForm').addEventListener('submit', async (event) => {
+    event.preventDefault(); // Prevent the default form submission
+
+    const title = document.getElementById('title').value;
+    const content = document.getElementById('content').value;
+    const image_url = document.getElementById('image_url').value;
+
+    // Check if required fields are not empty
+    if (!title || !content) {
+        alert('Title and Content are required!');
+        return;
+    }
+
+    try {
+        const response = await fetch('/api/articles', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${localStorage.getItem('token')}` // Pass JWT token if needed
+            },
+            body: JSON.stringify({ title, content, image_url })
+        });
+
+        const result = await response.json();
+        if (response.ok) {
+            alert('Article created successfully!');
+            // Optionally reset the form
+            document.getElementById('articleForm').reset();
+        } else {
+            alert(`Error: ${result.message}`);
+        }
+    } catch (error) {
+        console.error('Error:', error);
+        alert('An error occurred while submitting the form.');
+    }
+});
+/*
+articleForm = document.getElementById("formArticle")
+
+if (articleForm) {
+
+    articleForm.addEventListener("submit", function(event) {
+        event.preventDefault();  // Empêche la soumission du formulaire
+
+        const article = {
+            username: users.username,
+            title: document.getElementById("titre").value,
+            content: document.getElementById("content").value
+        };
+    
+    
+        if (!article.username || !article.title || !article.content) {
+            alert("Veuillez remplir tous les champs.");
+            return;
+        }
+
+        enregisterArticle(article);
+        document.getElementById("formArticle").reset();
+    });
+
+}
+function enregisterArticle(article) {
+    fetch('/api/article', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(article)
+    })
+    .then(response => {
+        if (!response.ok) {
+            return response.json().then(errorData => {
+                throw new Error(errorData.message || 'Une erreur est survenue.');
+            });
+        }
+        return response.json();
+    })
+    .then(articleFromServeur => {
+        console.log('Article enregistrer! :', articleFromServeur);
+        document.getElementById("formArticle").reset();
+        // Rediriger vers login.html après succès
+        window.location.href = 'Admin.html';
+    })
+    .catch(error => {
+        if (error.message === 'Failed to fetch') {
+            console.error('Erreur : Impossible de se connecter au serveur.');
+            alert('Le serveur est inaccessible. Vérifiez votre connexion ou réessayez plus tard.');
+        } 
+        else {
+            // Gérer d'autres types d'erreurs
+            console.error('Erreur lors de l\'enregistrement de l\'article :', error);
+            alert(`Une erreur s'est produite : ${error.message}`);
+        }
+    });
+}
+
+fetch('/api/articles')
+            .then(response => response.json())
+            .then(articles => {
+                const container = document.getElementById('articles-container');
+                
+                articles.forEach(article => {
+                    // Créer une carte de bulma pour chaque article de la base de données article
+                    const articleElement = document.createElement('div');
+                    articleElement.classList.add('column', 'is-one-third'); 
+                    articleElement.innerHTML = `
+                        <div class="card">
+                            <div class="card-header">
+                                <p class="card-header-title">${article.title}</p>
+                            </div>
+                            <div class="card-image">
+                                <figure class="image is-4by3">
+                                    <img src="${article.image_url}" alt="Image for ${article.title}">
+                                </figure>
+                            </div>
+                            <div class="card-content">
+                                <div class="content">
+                                    <p>${article.content}</p>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+
+                    container.appendChild(articleElement);
+                });
+            })
+            .catch(error => console.error('Error fetching articles:', error));
+
+*/

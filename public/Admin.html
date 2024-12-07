@@ -74,7 +74,7 @@
 
 </header>
 <body>
-    <article class="message">
+      <article class="message">
         <div class="message-header">
           <p>Admin</p>
           <button class="delete" aria-label="delete"></button>
@@ -83,33 +83,13 @@
             Tu es dans le compte admin tu as donc acces a plus d'option. C'est a partir de ce compte que nous pouvons donner le droit admin a dautre compte. Pour le faire il faut juste cocher la case admin a cote du compte que vous souhaitez ameliorer.
         </div>
       </article>
-      <div class="field">
-        <label class="label">Nom de l'auteur</label>
-        <div class="control">
-          <input class="input" type="text" placeholder="Nom">
-        </div>
-      </div>
-      <div class="field">
-        <label class="label">Siècle</label>
-        <div class="control">
-          <div class="select">
-            <select>
-              <option>??</option>
-              <option>18 eme</option>
-              <option>19 eme</option>
-              <option>20 eme</option>
-              <option>21 eme</option>
-            </select>
-          </div>
-        </div>
-      </div>
-      
-      <div class="field">
-        <label class="label">Message</label>
-        <div class="control">
-          <textarea class="textarea" placeholder="Textarea"></textarea>
-        </div>
-      </div>
+
+      <form id="articleForm">
+        <input type="text" id="title" name="title" placeholder="Article Title" required />
+        <textarea id="content" name="content" placeholder="Article Content" required></textarea>
+        <input type="text" id="image_url" name="image_url" placeholder="Image URL" />
+        <button type="submit">Envoyer</button>
+    </form>
       
 </body>
 
