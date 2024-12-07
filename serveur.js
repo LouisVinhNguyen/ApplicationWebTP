@@ -13,6 +13,8 @@ const app = express();
 // Définition du port sur lequel le serveur va écouter les requêtes
 const PORT = 3000;
 
+// Import bcrypt pour encrypter les mots de passe
+const bcrypt = require('bcrypt');
 
 // Middleware pour traiter les requêtes envoyées en JSON et les rendre accessibles via req.body
 app.use(bodyParser.json());
@@ -70,11 +72,16 @@ app.get('/api/inscriptions', async (req, res) => {
  * Route POST : Ajouter une nouvelle inscription
  * Cette route permet de recevoir une inscription via une requête POST.
  */
-app.post('/api/inscriptions', async (req, res) => {
-  const { nom, prenom, email, password, repeatPassword } = req.body;
+app.post('/api/register', async (req, res) => {
+  const { username, email, password, repeatPassword } = req.body;
+  const defaultRole = "user";
 
-  if (!nom || !prenom || !email || !password || !repeatPassword) {
+  if (!username || !email || !password || !repeatPassword) {
     return res.status(400).json({ message: 'Tous les champs sont obligatoires.' });
+  }
+
+  if (!valideUsername(username)) {
+    return res.status(400).json({ message: "Votre username ne peut contenir que les caractères suivant: a-z 0-9 _" });
   }
 
   if (!validateEmail(email)) {
@@ -86,15 +93,27 @@ app.post('/api/inscriptions', async (req, res) => {
   }
 
   try {
-    const [id] = await db('utilisateurLogin').insert({ nom, prenom, email, password });
-    const inscription = await db('utilisateurLogin').where({ id }).first();
+    const hashedPassword = await bcrypt.hash(password, 10);
+    const [id] = await db('users').insert({ username, email, password: hashedPassword, role: defaultRole });
+    const inscription = await db('users').where({ id }).first();
     res.status(201).json(inscription);
   } catch (error) {
+
+    console.error('Database Error:', error); // Log the exact error for debugging
+    
     if (error.code === 'SQLITE_CONSTRAINT') {
-        return res.status(409).json({ message: "L'email est déjà utilisé." });
+      if (error.message.includes('username')) {
+        return res.status(409).json({ message: "Le nom d'utilisateur est déjà utilisé." });
+      }
+      if (error.message.includes('email')) {
+        return res.status(409).json({ message: "L'adresse email est déjà utilisée." });
+      }
+      return res.status(409).json({ message: "Un des champs uniques est déjà utilisé." });
     }
+
     res.status(500).json({ message: 'Erreur lors de l’ajout de l’inscription.' });
   }
+  
 
 });
 
@@ -103,7 +122,7 @@ app.post('/api/inscriptions', async (req, res) => {
  * Route PUT : Modifier une inscription par ID
  * Cette route permet de mettre à jour une inscription existante par son ID.
  */
-app.put('/api/inscriptions/:id', async (req, res) => {
+app.put('/api/register/:id', async (req, res) => {
   // Récupère l'ID de l'inscription depuis les paramètres de la requête (req.params)
   const { id } = req.params;
 
@@ -136,7 +155,7 @@ app.put('/api/inscriptions/:id', async (req, res) => {
  * Route DELETE : Supprimer une inscription par ID
  * Cette route permet de supprimer une inscription de la base de données par son ID.
  */
-app.delete('/api/inscriptions/:id', async (req, res) => {
+app.delete('/api/register/:id', async (req, res) => {
   // Récupère l'ID de l'inscription à supprimer depuis les paramètres de la requête
   const { id } = req.params;
 
@@ -175,22 +194,22 @@ app.post('/api/login', async (req, res) => {
   }
 
   try {
-      // Find user by email
-      const user = await db('utilisateurLogin').where({ email }).first();
+      const user = await db('users').where({ email }).first();
 
       if (!user) {
           return res.status(404).json({ message: 'Utilisateur non trouvé.' });
       }
 
-      // Compare the password (ensure you are using hashed passwords in your database)
-      const isPasswordCorrect = (password === user.password);
+      const isPasswordCorrect = await bcrypt.compare(password, user.password);
 
       if (!isPasswordCorrect) {
           return res.status(401).json({ message: 'Mot de passe incorrect.' });
       }
 
-      // If login is successful, return user data or a success message
-      res.status(200).json({ message: 'Connexion réussie', user });
+      res.status(200).json({ 
+        message: 'Connexion réussie',
+        user: { id: user.id, username: user.username, email: user.email, role: user.role }
+      });
   } catch (error) {
       console.error('Login error:', error);
       res.status(500).json({ message: 'Erreur serveur.' });
@@ -239,9 +258,9 @@ function validateEmail(email) {
   return emailPattern.test(email);
 }
 
-function valideTelephone(telephone) {
+function valideUsername(username) {
 
-  telephonePattern = /^\s*(?:\+?(\d{1,3}))?[-. (]*(\d{3})[-. )]*(\d{3})[-. ]*(\d{4})(?: *x(\d+))?\s*$/;
+  usernamePattern = /^[a-zA-Z0-9_.]+$/;
 
-  return telephonePattern.test(telephone)
+  return usernamePattern.test(username)
 }

@@ -1,8 +1,8 @@
 # Test 1: Ajouter une inscription valide
 # Résultat attendu : 201 Created avec un message de confirmation et les détails de l'inscription ajoutée.
-curl -X POST http://localhost:3000/api/inscriptions \
+curl -X POST http://localhost:3000/api/register \
 -H "Content-Type: application/json" \
--d '{"nom": "Encarnacion", "prenom": "Lorry James", "email": "ljencarnacion@gmail.com", "password": "1234", "repeatPassword": "1234"}'
+-d '{"username": "admin", "email": "admin@mail.com", "password": "1234", "repeatPassword": "1234", "role": "admin"}'
 
 ###
 # Test 2: Ajouter une inscription avec un champ manquant

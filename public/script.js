@@ -1,3 +1,5 @@
+// Authentification routes (POST /api/register, POST /api/login, POST /api/logout)
+
 inscriptionForm = document.getElementById("inscriptionForm")
 
 if (inscriptionForm) {
@@ -7,16 +9,19 @@ if (inscriptionForm) {
         
         // Récupération des valeurs du formulaire
         const inscription = {
-            prenom: document.getElementById("prenom").value,
-            nom: document.getElementById("nom").value,
+            username: document.getElementById("username").value,
             email: document.getElementById("email").value,
             password: document.getElementById("password").value,
             repeatPassword: document.getElementById("repeatPassword").value
         };
 
-        if (!inscription.nom || !inscription.prenom || !inscription.email || !inscription.password || !inscription.repeatPassword) {
+        if (!inscription.username || !inscription.email || !inscription.password || !inscription.repeatPassword) {
             alert("Veuillez remplir tous les champs.");
             return;
+        }
+
+        if (!valideUsername(inscription.username)) {
+            alert("Votre username ne peut contenir que les caractères suivant: a-z 0-9 _")
         }
 
         if (!validateEmail(inscription.email)) {
@@ -31,14 +36,13 @@ if (inscriptionForm) {
 
         // Appel de la fonction ajouter pour insérer une nouvelle ligne dans le tableau et dans la base de donnees
         enregisterInscription(inscription);
-        document.getElementById("inscriptionForm").reset();
     });
 } else {
     console.log("No form with id 'inscriptionForm' on this page.");
 };
 
 function enregisterInscription(inscription) {
-    fetch('/api/inscriptions', {
+    fetch('/api/register', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(inscription)
@@ -53,6 +57,7 @@ function enregisterInscription(inscription) {
     })
     .then(inscriptionFromServeur => {
         console.log('Inscription réussie :', inscriptionFromServeur);
+        document.getElementById("inscriptionForm").reset();
         // Rediriger vers login.html après succès
         window.location.href = 'login.html';
     })
@@ -130,6 +135,40 @@ function loginUser(login) {
     });
 }
 
+function logoutUser(login) {
+    fetch('/api/logout', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(login)
+    })
+    .then(response => {
+        if (!response.ok) {
+            return response.json().then(errorData => {
+                throw new Error(errorData.message || 'Erreur de connexion.');
+            });
+        }
+        return response.json();
+    })
+    .then(data => {
+        console.log('Login successful:', data);
+        // Redirect to home page or user dashboard
+        window.location.href = 'index.html';
+    })
+    .catch(error => {
+        console.error('Error during login:', error);
+        alert(`Une erreur s'est produite : ${error.message}`);
+    });
+}
+
+// Routes Gestion des Articles (GET /api/articles, GET /api/articles/:id, POST /api/articles, 
+//                              PUT /api/articles/:id, DELETE /api/articles/:id)
+
+
+
+// Routes Gestion des Commentaires (POST /api/articles/:id/comments, GET /api/articles/:id/)
+
+// Routes Recherche et Pagination (Route GET /api/articles/search?q=mot-cle)
+
 contactForm = document.getElementById("messageContact")
 
 if (contactForm) {
@@ -145,18 +184,13 @@ if (contactForm) {
 
         console.log(contact);
 
-        if (contact.nomC) {
-            alert("Flag #1");
-            return;
-        }
-
         // Vérification simple que tous les champs sont remplis
         if (!contact.nomC || !contact.courriel || !contact.messages) {  
             alert("Veuillez remplir tous les champs.");
             return;
         }
 
-        if (!validateEmail(contact.email)) {
+        if (!validateEmail(contact.courriel)) {
             alert("L'adresse mail saisie n'est pas valide.");
             return;
         }
@@ -187,7 +221,7 @@ function enregistrerMessage(contact) {
     .then(messageFromServeur => {
         console.log('Message envoyé :', messageFromServeur);
         // Rediriger vers index.html après succès
-        window.location.href = './index.html';
+        alert("Votre message a été reçu avec succès.")
     })
     .catch(error => {
         if (error.message === 'Failed to fetch') {
@@ -209,10 +243,10 @@ function validateEmail(email) {
     return emailPattern.test(email);
 }
 
-function valideTelephone(telephone) {
+function valideUsername(username) {
 
-    telephonePattern = /^\s*(?:\+?(\d{1,3}))?[-. (]*(\d{3})[-. )]*(\d{3})[-. ]*(\d{4})(?: *x(\d+))?\s*$/;
+    usernamePattern = /^[a-zA-Z0-9_.]+$/;
 
-    return telephonePattern.test(telephone)
+    return usernamePattern.test(username)
 }
 
