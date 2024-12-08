@@ -74,7 +74,7 @@ function enregisterInscription(inscription) {
     });
 }
 
-loginForm = document.getElementById("loginForm")
+const loginForm = document.getElementById("loginForm")
 
 if (loginForm) {
 
@@ -127,7 +127,7 @@ function loginUser(login) {
     .then(data => {
         console.log('Login successful:', data);
         // Redirect to home page or user dashboard
-        window.location.href = 'index.html';
+        window.location.href = '/loginProtected/index.html';
     })
     .catch(error => {
         console.error('Error during login:', error);
@@ -135,27 +135,39 @@ function loginUser(login) {
     });
 }
 
-function logoutUser(login) {
+const logoutButton = document.getElementById("logoutButton");
+
+if (logoutButton) {
+
+    logoutButton.addEventListener("click", function(event) {
+        event.preventDefault();  // Prevent the default behavior (e.g., following the link)
+        logoutUser();  // Call the logout function
+    });
+} else {
+    console.log("Logout button not found");
+}
+
+
+function logoutUser() {
     fetch('/api/logout', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(login)
     })
     .then(response => {
         if (!response.ok) {
             return response.json().then(errorData => {
-                throw new Error(errorData.message || 'Erreur de connexion.');
+                throw new Error(errorData.message || 'Erreur de déconnexion.');
             });
         }
         return response.json();
     })
     .then(data => {
-        console.log('Login successful:', data);
-        // Redirect to home page or user dashboard
-        window.location.href = 'index.html';
+        console.log('Déconnexion réussie:', data);
+        // Redirect to login page after successful logout
+        window.location.href = '../login.html';  // Or redirect to another page (e.g., home page)
     })
     .catch(error => {
-        console.error('Error during login:', error);
+        console.error('Error during logout:', error);
         alert(`Une erreur s'est produite : ${error.message}`);
     });
 }

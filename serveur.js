@@ -21,12 +21,38 @@ app.use(bodyParser.json());
 
 const path = require('path');
 
+const jwt = require('jsonwebtoken'); // Add this if not already included
+const cookieParser = require('cookie-parser'); // Add this if not already included
+app.use(cookieParser()); // Ensure this is applied
+
 // Middleware pour servir des fichiers statiques (HTML, CSS, JS)
 app.use(express.static(path.join(__dirname, 'public')));
+// Apply authenticateToken middleware to protected routes
+app.use('/protected', authenticateToken, express.static(path.join(__dirname, 'protected')));
+
 
 // Route pour la page HTML qui contient le formulaire
 app.get('/', (req, res) => {
     res.sendFile(path.join(__dirname, 'public', 'register.html'));
+});
+
+function authenticateToken(req, res, next) {
+  const token = req.cookies.authToken; // Retrieve token from cookies
+  if (!token) {
+      return res.redirect('/login.html'); // Redirect to login if no token
+  }
+
+  jwt.verify(token, 'your-secret-key', (err, user) => {
+      if (err) {
+          return res.redirect('/login.html'); // Redirect if token is invalid
+      }
+      req.user = user; // Attach user data to request object
+      next(); // Proceed if token is valid
+  });
+}
+
+app.get('/api/validate-token', authenticateToken, (req, res) => {
+  res.json({ message: 'Token valid', user: req.user });
 });
 
 
@@ -34,7 +60,7 @@ app.get('/', (req, res) => {
  * Route GET : Récupérer toutes les inscriptions
  * Cette route retourne la liste de toutes les inscriptions dans la base de données.
  */
-app.get('/api/inscriptions', async (req, res) => {
+app.get('/api/register', async (req, res) => {
   try {
     // Obtenir les paramètres de la requête
     const queryParams = req.query;
@@ -185,42 +211,45 @@ app.post('/api/login', async (req, res) => {
   const { email, password } = req.body;
 
   if (!email || !password) {
-    return res.status(400).json({ message: 'Tous les champs sont obligatoires.' });
+      return res.status(400).json({ message: 'Tous les champs sont obligatoires.' });
   }
 
-  // Validate email format
   if (!validateEmail(email)) {
       return res.status(400).json({ message: "L'adresse email est invalide." });
   }
 
   try {
       const user = await db('users').where({ email }).first();
-
       if (!user) {
           return res.status(404).json({ message: 'Utilisateur non trouvé.' });
       }
 
-      const isPasswordCorrect = await bcrypt.compare(password, user.password);
-
-      if (!isPasswordCorrect) {
+      const passwordMatch = await bcrypt.compare(password, user.password);
+      if (!passwordMatch) {
           return res.status(401).json({ message: 'Mot de passe incorrect.' });
       }
 
-      res.status(200).json({ 
-        message: 'Connexion réussie',
-        user: { id: user.id, username: user.username, email: user.email, role: user.role }
+      // Generate a JWT token
+      const token = jwt.sign({ id: user.id, role: user.role }, 'your-secret-key', { expiresIn: '1h' });
+
+      // Set token as an HTTP-only cookie
+      res.cookie('authToken', token, {
+          httpOnly: true,
+          secure: process.env.NODE_ENV === 'production',  // Use secure cookies in production
+          sameSite: 'Strict',
+          maxAge: 3600000 // 1 hour
       });
+
+      res.json({ message: 'Connexion réussie' });
   } catch (error) {
-      console.error('Login error:', error);
-      res.status(500).json({ message: 'Erreur serveur.' });
+      res.status(500).json({ message: 'Erreur lors de la connexion.', error: error.message });
   }
 });
 
-
-
-// Démarre le serveur et écoute les requêtes sur le port défini
-app.listen(PORT, () => {
-  console.log(`Serveur en cours d'exécution sur http://localhost:${PORT}`);
+// Logout route to clear the authentication token
+app.post('/api/logout', (req, res) => {
+  res.clearCookie('authToken');  // Clears the cookie
+  res.json({ message: 'Déconnexion réussie.' });  // Success message
 });
 
 app.use(express.json());  // Middleware pour parser les requêtes JSON
@@ -251,6 +280,10 @@ app.post('/api/contact', async (req, res) => {
 }
 });
 
+////////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////
+
 function validateEmail(email) {
 
   const emailPattern = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
@@ -264,3 +297,8 @@ function valideUsername(username) {
 
   return usernamePattern.test(username)
 }
+
+// Démarre le serveur et écoute les requêtes sur le port défini
+app.listen(PORT, () => {
+  console.log(`Serveur en cours d'exécution sur http://localhost:${PORT}`);
+});

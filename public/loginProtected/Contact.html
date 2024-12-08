@@ -1,0 +1,109 @@
+<!DOCTYPE HTML>
+
+<html>
+
+<head>
+
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@0.9.3/css/bulma.min.css">
+</head>
+
+<header>
+
+  <nav class="navbar" role="navigation" aria-label="main navigation">
+    <div class="navbar-brand">
+      <a class="navbar-item" href="./index.html">
+  
+        <p class="title is-medium is-link">Historia</p>
+      </a>
+  
+      <a role="button" class="navbar-burger" aria-label="menu" aria-expanded="false" data-target="navbarBasicExample">
+        <span aria-hidden="true"></span>
+        <span aria-hidden="true"></span>
+        <span aria-hidden="true"></span>
+        <span aria-hidden="true"></span>
+      </a>
+    </div>
+  
+    <div id="navbarBasicExample" class="navbar-menu">
+      <div class="navbar-start">
+
+        <a href="./index.html" class="navbar-item">
+          Acceuil
+        </a>
+  
+        <a href="./Contact.html" class="navbar-item">
+          Contact
+        </a>
+        
+      </div>
+  
+      <div class="navbar-end">
+        <div class="navbar-item">
+          <div class="buttons">
+            <a class="button is-danger" href="#" id="logoutButton">
+              <strong>Log out</strong>
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </nav>
+  
+</header>
+
+<body>
+
+  <div class="columns is-centered" style="height: 100vh;">
+    <div class="column is-half-tablet is-one-third-desktop">
+      <div class="box">
+        <h1 class="title has-text-centered">Contactez-nous!</h1>
+        
+        <form id="messageContact">
+          <div class="field">
+            <label class="label" >Nom</label>
+            <div class="control">
+              <input class="input" type="text" placeholder="Votre nom" id="nomC">
+            </div>
+          </div>
+
+          <div class="field">
+            <label class="label">Courriel</label>
+            <div class="control">
+              <input class="input" type="email" placeholder="Votre courriel" id="courriel">
+            </div>
+          </div>
+
+          <div class="field">
+            <label class="label">Message</label>
+            <div class="control">
+              <textarea class="textarea" placeholder="Votre message" id="messages"></textarea>
+            </div>
+          </div>
+
+          <div class="field is-grouped is-grouped-centered">
+            <div class="control">
+              <button class="button is-primary">Envoyer</button>
+            </div>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+  <footer>
+
+  </footer>
+
+  <script src="../script.js"></script>
+  <script>
+    fetch('/api/validate-token', { method: 'GET', credentials: 'include' })
+        .then(response => {
+            if (!response.ok) {
+                window.location.href = '/login.html'; // Redirect if token is invalid
+            }
+        })
+        .catch(() => {
+            window.location.href = '/login.html';
+        });
+  </script>
+
+</body>
