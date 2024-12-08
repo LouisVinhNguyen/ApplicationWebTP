@@ -77,7 +77,7 @@ function enregisterInscription(inscription) {
     });
 }
 
-loginForm = document.getElementById("loginForm")
+const loginForm = document.getElementById("loginForm")
 
 if (loginForm) {
 
@@ -130,7 +130,7 @@ function loginUser(login) {
     .then(data => {
         console.log('Login successful:', data);
         // Redirect to home page or user dashboard
-        window.location.href = 'index.html';
+        window.location.href = '/loginProtected/index.html';
     })
     .catch(error => {
         console.error('Error during login:', error);
@@ -138,27 +138,39 @@ function loginUser(login) {
     });
 }
 
-function logoutUser(login) {
+const logoutButton = document.getElementById("logoutButton");
+
+if (logoutButton) {
+
+    logoutButton.addEventListener("click", function(event) {
+        event.preventDefault();  // Prevent the default behavior (e.g., following the link)
+        logoutUser();  // Call the logout function
+    });
+} else {
+    console.log("Logout button not found");
+}
+
+
+function logoutUser() {
     fetch('/api/logout', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(login)
     })
     .then(response => {
         if (!response.ok) {
             return response.json().then(errorData => {
-                throw new Error(errorData.message || 'Erreur de connexion.');
+                throw new Error(errorData.message || 'Erreur de déconnexion.');
             });
         }
         return response.json();
     })
     .then(data => {
-        console.log('Login successful:', data);
-        // Redirect to home page or user dashboard
-        window.location.href = 'index.html';
+        console.log('Déconnexion réussie:', data);
+        // Redirect to login page after successful logout
+        window.location.href = '../login.html';  // Or redirect to another page (e.g., home page)
     })
     .catch(error => {
-        console.error('Error during login:', error);
+        console.error('Error during logout:', error);
         alert(`Une erreur s'est produite : ${error.message}`);
     });
 }
@@ -166,32 +178,23 @@ function logoutUser(login) {
 // Routes Gestion des Articles (GET /api/articles, GET /api/articles/:id, POST /api/articles, 
 //                              PUT /api/articles/:id, DELETE /api/articles/:id)
 
-//Routes POST /api/articles
-
-
 articleForm = document.getElementById("articleForm")
-
 if (articleForm) {
     articleForm.addEventListener("submit", function(event) {
         event.preventDefault();  // Empêche la soumission du formulaire
-
         const article = {
             username: document.getElementById("username").value,
             title: document.getElementById("titre").value,
             content: document.getElementById("content").value
         };
-
         if (!article.username || !article.title || !article.content) {
             alert("Veuillez remplir tous les champs.");
             return;
         }
-
         enregistrerArticle(article);
         document.getElementById("formArticle").reset();
     });
 }
-
-
 function enregistrerArticle(article) {
     fetch('/api/articles', {
         method: 'POST',
@@ -222,13 +225,10 @@ function enregistrerArticle(article) {
         }
     });
 }
-
-
 fetch('/api/articles')
     .then(response => response.json())
     .then(articles => {
         const container = document.getElementById('articles-container');
-
         articles.forEach(article => {
             // Create a Bulma card for each article
             const articleElement = document.createElement('div');
@@ -250,17 +250,16 @@ fetch('/api/articles')
                     </div>
                 </div>
             `;
-
             container.appendChild(articleElement);
         });
     })
     .catch(error => console.error('Error fetching articles:', error));
 
-
-
 // Routes Gestion des Commentaires (POST /api/articles/:id/comments, GET /api/articles/:id/)
 
 // Routes Recherche et Pagination (Route GET /api/articles/search?q=mot-cle)
+
+//Other
 
 contactForm = document.getElementById("messageContact")
 

@@ -30,23 +30,18 @@
         <a href="./index.html" class="navbar-item">
           Acceuil
         </a>
-
   
         <a href="./Contact.html" class="navbar-item">
-              Contact
+          Contact
         </a>
         
-  
       </div>
   
       <div class="navbar-end">
         <div class="navbar-item">
           <div class="buttons">
-            <a class="button is-primary" href="./register.html">
-              <strong>Sign up</strong>
-            </a>
-            <a class="button is-light" href="./login.html">
-              Log in
+            <a class="button is-danger" href="#" id="logoutButton">
+              <strong>Log out</strong>
             </a>
           </div>
         </div>
@@ -57,15 +52,44 @@
 </header>
 
 <body>
-  <div id="articles-container" class="columns is-multiline">
-  
+  <div class="container">
+      <div class="notification is-primary">
+        <div class="card">
+            <div class="card-header">
+                <p class="card-header-title">${article.title}</p>
+            </div>
+            <div class="card-image">
+                <figure class="image is-4by3">
+                    <img src="${article.image_url}" alt="Image for ${article.title}">
+                </figure>
+            </div>
+            <div class="card-content">
+                <div class="content">
+                    <p>${article.content}</p>
+                </div>
+            </div>
+        </div>
+      </div>
   </div>
-
-  <script src="./script.js"></script>
 </body>
 
 <footer>
 
 </footer>
+
+<script src="../script.js"></script>
+<script>
+  fetch('/api/validate-token', { method: 'GET', credentials: 'include' })
+      .then(response => {
+          if (!response.ok) {
+              window.location.href = '/login.html'; // Redirect if token is invalid or not found
+          }
+      })
+      .catch(() => {
+          window.location.href = '/login.html'; // Redirect if there's an error or no token
+      });
+</script>
+
+
 
 </html>

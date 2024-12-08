@@ -9,46 +9,46 @@
 
 <header>
 
-<nav class="navbar" role="navigation" aria-label="main navigation">
-  <div class="navbar-brand">
-    <a class="navbar-item" href="./index.html">
-        <p class="title">Historia</p>
-    </a>
-
-    <a role="button" class="navbar-burger" aria-label="menu" aria-expanded="false" data-target="navbarBasicExample">
-      <span aria-hidden="true"></span>
-      <span aria-hidden="true"></span>
-      <span aria-hidden="true"></span>
-      <span aria-hidden="true"></span>
-    </a>
-  </div>
-
-  <div id="navbarBasicExample" class="navbar-menu">
-    <div class="navbar-start">
-      <a href="./index.html" class="navbar-item">
-        Acceuil
+  <nav class="navbar" role="navigation" aria-label="main navigation">
+    <div class="navbar-brand">
+      <a class="navbar-item" href="./index.html">
+  
+        <p class="title is-medium is-link">Historia</p>
       </a>
-      <a href="./Contact.html" class="navbar-item">
-            Contact
+  
+      <a role="button" class="navbar-burger" aria-label="menu" aria-expanded="false" data-target="navbarBasicExample">
+        <span aria-hidden="true"></span>
+        <span aria-hidden="true"></span>
+        <span aria-hidden="true"></span>
+        <span aria-hidden="true"></span>
       </a>
-
     </div>
+  
+    <div id="navbarBasicExample" class="navbar-menu">
+      <div class="navbar-start">
 
-    <div class="navbar-end">
-      <div class="navbar-item">
-        <div class="buttons">
-          <a class="button is-primary" href="./register.html">
-            <strong>Sign up</strong>
-          </a>
-          <a class="button is-light" href="./login.html">
-            Log in
-          </a>
+        <a href="./index.html" class="navbar-item">
+          Acceuil
+        </a>
+  
+        <a href="./Contact.html" class="navbar-item">
+          Contact
+        </a>
+        
+      </div>
+  
+      <div class="navbar-end">
+        <div class="navbar-item">
+          <div class="buttons">
+            <a class="button is-danger" href="#" id="logoutButton">
+              <strong>Log out</strong>
+            </a>
+          </div>
         </div>
       </div>
     </div>
-  </div>
-</nav>
-
+  </nav>
+  
 </header>
 
 <body>
@@ -92,5 +92,18 @@
   <footer>
 
   </footer>
-  <script src="./script.js"></script>
+
+  <script src="../script.js"></script>
+  <script>
+    fetch('/api/validate-token', { method: 'GET', credentials: 'include' })
+        .then(response => {
+            if (!response.ok) {
+                window.location.href = '/login.html'; // Redirect if token is invalid
+            }
+        })
+        .catch(() => {
+            window.location.href = '/login.html';
+        });
+  </script>
+
 </body>

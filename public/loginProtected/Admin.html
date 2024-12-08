@@ -1,0 +1,80 @@
+<!DOCTYPE HTML>
+
+<html>
+
+<head>
+
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@0.9.3/css/bulma.min.css">
+</head>
+
+<header>
+
+  <nav class="navbar" role="navigation" aria-label="main navigation">
+    <div class="navbar-brand">
+      <a class="navbar-item" href="./index.html">
+  
+        <p class="title is-medium is-link">Historia</p>
+      </a>
+  
+      <a role="button" class="navbar-burger" aria-label="menu" aria-expanded="false" data-target="navbarBasicExample">
+        <span aria-hidden="true"></span>
+        <span aria-hidden="true"></span>
+        <span aria-hidden="true"></span>
+        <span aria-hidden="true"></span>
+      </a>
+    </div>
+  
+    <div id="navbarBasicExample" class="navbar-menu">
+      <div class="navbar-start">
+
+        <a href="./index.html" class="navbar-item">
+          Acceuil
+        </a>
+  
+        <a href="./Contact.html" class="navbar-item">
+          Contact
+        </a>
+        
+      </div>
+  
+      <div class="navbar-end">
+        <div class="navbar-item">
+          <div class="buttons">
+            <a class="button is-danger" href="#" id="logoutButton">
+              <strong>Log out</strong>
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </nav>
+  
+</header>
+
+<body>
+  <article class="message">
+    <div class="message-header">
+      <p>Admin</p>
+      <button class="delete" aria-label="delete"></button>
+    </div>
+    <div class="message-body">
+        Tu es dans le compte admin tu as donc acces a plus d'option. C'est a partir de ce compte que nous pouvons donner le droit admin a dautre compte. Pour le faire il faut juste cocher la case admin a cote du compte que vous souhaitez ameliorer.
+    </div>
+  </article>
+
+  <form id="articleForm">
+    <input type="text" id="auteur" name="username" placeholder="username" />
+    <input type="text" id="title" name="title" placeholder="Article Title" required />
+    <textarea id="content" name="content" placeholder="Article Content" required></textarea>
+    <input type="text" id="image_url" name="image_url" placeholder="Image URL" />
+    <button type="submit">Envoyer</button>
+  </form>
+</body>
+
+<footer>
+
+</footer>
+
+<script src="../script.js"></script>
+
+</html>
