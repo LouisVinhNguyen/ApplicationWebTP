@@ -175,11 +175,88 @@ function logoutUser() {
 // Routes Gestion des Articles (GET /api/articles, GET /api/articles/:id, POST /api/articles, 
 //                              PUT /api/articles/:id, DELETE /api/articles/:id)
 
-
+articleForm = document.getElementById("articleForm")
+if (articleForm) {
+    articleForm.addEventListener("submit", function(event) {
+        event.preventDefault();  // Empêche la soumission du formulaire
+        const article = {
+            username: document.getElementById("username").value,
+            title: document.getElementById("titre").value,
+            content: document.getElementById("content").value
+        };
+        if (!article.username || !article.title || !article.content) {
+            alert("Veuillez remplir tous les champs.");
+            return;
+        }
+        enregistrerArticle(article);
+        document.getElementById("formArticle").reset();
+    });
+}
+function enregistrerArticle(article) {
+    fetch('/api/articles', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(article)
+    })
+    .then(response => {
+        if (!response.ok) {
+            return response.json().then(errorData => {
+                throw new Error(errorData.message || 'Une erreur est survenue.');
+            });
+        }
+        return response.json();
+    })
+    .then(articleFromServeur => {
+        console.log('Article enregistrer! :', articleFromServeur);
+        document.getElementById("formArticle").reset();
+        // Rediriger vers admin.html après succès
+        window.location.href = './Admin.html';
+    })
+    .catch(error => {
+        if (error.message === 'Failed to fetch') {
+            console.error('Erreur : Impossible de se connecter au serveur.');
+            alert('Le serveur est inaccessible. Vérifiez votre connexion ou réessayez plus tard.');
+        } else {
+            console.error('Erreur lors de l\'enregistrement de l\'article :', error);
+            alert(`Une erreur s'est produite : ${error.message}`);
+        }
+    });
+}
+fetch('/api/articles')
+    .then(response => response.json())
+    .then(articles => {
+        const container = document.getElementById('articles-container');
+        articles.forEach(article => {
+            // Create a Bulma card for each article
+            const articleElement = document.createElement('div');
+            articleElement.classList.add('column', 'is-one-third');
+            articleElement.innerHTML = `
+                <div class="card">
+                    <div class="card-header">
+                        <p class="card-header-title">${article.title}</p>
+                    </div>
+                    <div class="card-image">
+                        <figure class="image is-4by3">
+                            <img src="${article.image_url}" alt="Image for ${article.title}">
+                        </figure>
+                    </div>
+                    <div class="card-content">
+                        <div class="content">
+                            <p>${article.content}</p>
+                        </div>
+                    </div>
+                </div>
+            `;
+            container.appendChild(articleElement);
+        });
+    })
+    .catch(error => console.error('Error fetching articles:', error));
 
 // Routes Gestion des Commentaires (POST /api/articles/:id/comments, GET /api/articles/:id/)
 
 // Routes Recherche et Pagination (Route GET /api/articles/search?q=mot-cle)
+
+//Other
 
 contactForm = document.getElementById("messageContact")
 

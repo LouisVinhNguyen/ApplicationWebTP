@@ -52,24 +52,28 @@
 </header>
 
 <body>
-      <article class="message">
-        <div class="message-header">
-          <p>Admin</p>
-          <button class="delete" aria-label="delete"></button>
-        </div>
-        <div class="message-body">
-            Tu es dans le compte admin tu as donc acces a plus d'option. C'est a partir de ce compte que nous pouvons donner le droit admin a dautre compte. Pour le faire il faut juste cocher la case admin a cote du compte que vous souhaitez ameliorer.
-        </div>
-      </article>
+  <article class="message">
+    <div class="message-header">
+      <p>Admin</p>
+      <button class="delete" aria-label="delete"></button>
+    </div>
+    <div class="message-body">
+        Tu es dans le compte admin tu as donc acces a plus d'option. C'est a partir de ce compte que nous pouvons donner le droit admin a dautre compte. Pour le faire il faut juste cocher la case admin a cote du compte que vous souhaitez ameliorer.
+    </div>
+  </article>
 
-      <form id="articleForm">
-        <input type="text" id="title" name="title" placeholder="Article Title" required />
-        <textarea id="content" name="content" placeholder="Article Content" required></textarea>
-        <input type="text" id="image_url" name="image_url" placeholder="Image URL" />
-        <button type="submit">Envoyer</button>
-    </form>
-      
+  <form id="articleForm">
+    <input type="text" id="auteur" name="username" placeholder="username" />
+    <input type="text" id="title" name="title" placeholder="Article Title" required />
+    <textarea id="content" name="content" placeholder="Article Content" required></textarea>
+    <input type="text" id="image_url" name="image_url" placeholder="Image URL" />
+    <button type="submit">Envoyer</button>
+  </form>
 </body>
+
+<footer>
+
+</footer>
 
 <script src="../script.js"></script>
 
