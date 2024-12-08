@@ -5,62 +5,129 @@
 <head>
 
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@0.9.3/css/bulma.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css">
 </head>
 
-<header>
+<body>
 
-  <nav class="navbar" role="navigation" aria-label="main navigation">
-    <div class="navbar-brand">
-      <a class="navbar-item" href="./index.html">
-  
-        <p class="title is-medium is-link">Historia</p>
-      </a>
-  
-      <a role="button" class="navbar-burger" aria-label="menu" aria-expanded="false" data-target="navbarBasicExample">
-        <span aria-hidden="true"></span>
-        <span aria-hidden="true"></span>
-        <span aria-hidden="true"></span>
-        <span aria-hidden="true"></span>
-      </a>
-    </div>
-  
-    <div id="navbarBasicExample" class="navbar-menu">
-      <div class="navbar-start">
+  <header>
 
-        <a href="./index.html" class="navbar-item">
-          Acceuil
+    <nav class="navbar" role="navigation" aria-label="main navigation">
+      <div class="navbar-brand">
+        <a class="navbar-item" href="./index.html">
+    
+          <p class="title is-medium is-link">Historia</p>
         </a>
-  
-        <a href="./Contact.html" class="navbar-item">
-          Contact
+    
+        <a role="button" class="navbar-burger" aria-label="menu" aria-expanded="false" data-target="navbarBasicExample">
+          <span aria-hidden="true"></span>
+          <span aria-hidden="true"></span>
+          <span aria-hidden="true"></span>
+          <span aria-hidden="true"></span>
         </a>
-        
       </div>
-  
-      <div class="navbar-end">
-        <div class="navbar-item">
-          <div class="buttons">
-            <a class="button is-danger" href="#" id="logoutButton">
-              <strong>Log out</strong>
-            </a>
+    
+      <div id="navbarBasicExample" class="navbar-menu">
+        <div class="navbar-start">
+
+          <a href="./index.html" class="navbar-item">
+            Acceuil
+          </a>
+    
+          <a href="./Contact.html" class="navbar-item">
+            Contact
+          </a>
+          
+        </div>
+    
+        <div class="navbar-end">
+          <div class="navbar-item">
+            <div class="buttons">
+              <a class="button is-danger" href="#" id="logoutButton">
+                <strong>Log out</strong>
+              </a>
+            </div>
           </div>
         </div>
       </div>
-    </div>
-  </nav>
-  
-</header>
+    </nav>
+    
+  </header>
 
-<body>
-  <article class="message">
-    <div class="message-header">
-      <p>Admin</p>
-      <button class="delete" aria-label="delete"></button>
-    </div>
-    <div class="message-body">
-        Tu es dans le compte admin tu as donc acces a plus d'option. C'est a partir de ce compte que nous pouvons donner le droit admin a dautre compte. Pour le faire il faut juste cocher la case admin a cote du compte que vous souhaitez ameliorer.
-    </div>
-  </article>
+  <main>
+
+    <section class="hero is-primary is-fullheight">
+      <div class="hero-body">
+        <div class="container">
+          <div class="columns is-centered">
+            <div class="column is-8-tablet is-8-desktop is-8-widescreen">
+              <form action="" class="box" id="articleForm">
+
+                <div class="field">
+                  <label class="label">Username</label>
+                  <div class="control has-icons-left has-icons-right">
+                    <input class="input is-success" type="text" placeholder="Username" value="" id="username">
+                    <span class="icon is-small is-left">
+                      <i class="fas fa-user"></i>
+                    </span>
+                  </div>
+                </div>
+
+                <div class="field">
+                  <label for="" class="label">Titre</label>
+                  <div class="control has-icons-left">
+                    <input type="text" placeholder="Article Title" class="input" required id="title">
+                    <span class="icon is-small is-left">
+                      <i class="fa-solid fa-pen-nib"></i>
+                    </span>
+                  </div>
+                </div>
+
+                <div class="field">
+                  <label for="" class="label">Contenu</label>
+                  <div class="control has-icons-left">
+                    <textarea
+                      class="textarea"
+                      placeholder=""
+                      rows="10"
+                      required
+                      id="content"
+                    ></textarea>
+                    <span class="icon is-small is-left">
+                      <i class="fa-solid fa-pen-to-square"></i>
+                    </span>
+                  </div>
+                </div>
+
+                <div class="field">
+                  <label for="" class="label">Image URL (Optional)</label>
+                  <div class="control has-icons-left">
+                    <input class="input" type="text" placeholder="Image URL" id="image_url">
+                    <span class="icon is-small is-left">
+                      <i class="fa-solid fa-paperclip"></i>
+                    </span>
+                  </div>
+                </div>
+
+                <div class="field">
+                  <button class="button is-success">
+                    Submit
+                  </button>
+                </div>
+
+              </form>
+              
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  
+  </main>
+
+  <footer>
+
+  </footer>
 
   <form id="articleForm">
     <input type="text" id="auteur" name="username" placeholder="username" />
@@ -84,10 +151,6 @@
       </tbody>
   </table>
 </body>
-
-<footer>
-
-</footer>
 
 <script src="../script.js"></script>
 

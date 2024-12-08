@@ -254,6 +254,61 @@ app.post('/api/logout', (req, res) => {
 
 app.use(express.json());  // Middleware pour parser les requêtes JSON
 
+app.post('/api/articles', async (req, res) => {
+  const { username, title, content, image_url } = req.body;
+
+  if (!valideUsername(username)) {
+    return res.status(400).json({ message: "Votre username ne peut contenir que les caractères suivant: a-z 0-9 _" });
+  };
+
+  if (!username || !title || !content) {
+      return res.status(400).json({ message: 'Veuillez remplir tous les champs requis.' });
+  };
+
+  try {
+      // Insert the article into the database
+      const [id] = await db('articles').insert({title, content, image_url, views: 0, admin_id: 0});
+      const article = await db('articles').where({ id }).first();
+      res.status(201).json(article);
+  } catch (error) {
+      console.error('Error creating article:', error);
+      res.status(500).json({ message: 'Error creating article', error: error.message });
+  }
+});
+
+app.get('/api/articles', async (req, res) => {
+  try {
+    const queryParams = req.query;
+
+    // Liste des champs valides pour la table "inscription"
+    const validFields = ['id', 'title', 'content', 'image_url', 'views', 'admin_id'];
+
+    // Vérification : assurez-vous que tous les champs spécifiés ne sont pas vides
+    for (const [key, value] of Object.entries(queryParams)) {
+      if (validFields.includes(key) && (!value || value.trim() === '')) {
+        return res.status(400).json({ message: `Le champ '${key}' ne peut pas être vide.` });
+      }
+    }
+
+    // Construire la requête filtrée
+    const filters = {};
+    validFields.forEach((field) => {
+      if (queryParams[field]) {
+        filters[field] = queryParams[field];
+      }
+    });
+
+    // Exécuter la requête filtrée
+    const articles = await db('articles').where(filters).select('*');
+
+    // Retourner les inscriptions trouvées
+    res.json(articles);
+  } catch (error) {
+    // Gérer les erreurs
+    res.status(500).json({ message: 'Erreur lors de la récupération des inscriptions.', error: error.message });
+  }
+})
+
 /**
  * Route POST : Ajouter un nouveau message de contact
  * Cette route permet de recevoir un message via une requête POST.
