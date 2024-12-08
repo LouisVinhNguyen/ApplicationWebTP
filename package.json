@@ -2,10 +2,15 @@
   "dependencies": {
     "bcrypt": "^5.1.1",
     "cookie-parser": "^1.4.7",
-    "express": "^4.21.1",
+    "express": "^4.21.2",
     "jsonwebtoken": "^9.0.2",
     "knex": "^3.1.0",
     "node": "^20.18.1",
     "sqlite3": "^5.1.7"
+  },
+  "devDependencies": {
+    "eslint": "^9.16.0",
+    "globals": "^15.13.0",
+    "typescript-eslint": "^8.17.0"
   }
 }

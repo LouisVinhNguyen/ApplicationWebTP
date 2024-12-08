@@ -1,7 +1,5 @@
 // Authentification routes (POST /api/register, POST /api/login, POST /api/logout)
 
-const { userInfo } = require("os");
-
 inscriptionForm = document.getElementById("inscriptionForm")
 
 if (inscriptionForm) {
@@ -36,13 +34,97 @@ if (inscriptionForm) {
             return;
         }
 
+        ajouterCookie(inscription);
         // Appel de la fonction ajouter pour insérer une nouvelle ligne dans le tableau et dans la base de donnees
+        
         enregisterInscription(inscription);
         document.getElementById("inscriptionForm").reset();
     });
 } else {
     console.log("No form with id 'inscriptionForm' on this page.");
 };
+
+
+
+function ajouterInscription(users) {
+    // Ajout d'une nouvelle ligne au tableau
+    let table = document.getElementById("listeInscription");
+    let newRow = table.insertRow();
+    newRow.id = `row-${users.id}`;
+
+    // Insertion des cellules avec les informations saisies
+    newRow.insertCell(0).textContent = users.username;  // Assuming 'username' is the field
+    newRow.insertCell(1).textContent = users.email; 
+    newRow.insertCell(2).textContent = users.role
+
+    // Ajout du bouton "Modifier " et "Supprimer" dans la colonne des actions
+    let actionsCell = newRow.insertCell(4);
+
+    let modifierButton = document.createElement("button");
+    modifierButton.className = "button is-warning is-small";
+    modifierButton.textContent = "Modifier";
+    modifierButton.addEventListener('click', function() {
+        ajouterChampDeTexte(inscription.id);
+    });
+    
+    let deleteButton = document.createElement("button");
+    deleteButton.className = "button is-danger is-small";
+    deleteButton.textContent = "Supprimer";
+    deleteButton.addEventListener('click', function() {
+        supprimer(inscription.id);  // Ensures correct function binding
+    });
+    
+
+    // Gestion de l'événement du bouton "Supprimer" via la fonction supprimer
+    deleteButton.onclick = function() {
+        supprimer(inscription.id);
+    };
+
+    actionsCell.appendChild(modifierButton);
+    actionsCell.appendChild(deleteButton);
+
+    // Réinitialiser le formulaire
+    document.getElementById("inscriptionForm").reset();
+    }
+
+    function ajouterChampDeTexte(id){
+        const row = document.getElementById(`row-${id}`);
+        const cells = row.querySelectorAll('td');
+        
+        //AJouter des champs de texte dans chaque cellule
+        for(let i=0; i<cells.length - 1; i++){
+            let cellValue = cells[i].textContent;
+           cells[i].innerHTML = `<input type="text" class="input" value="${cellValue}">`;
+        }
+        //modiifier les boutons "modifier" et "supprimer" en Enregistrer
+        let actionsCell = cells[4];
+        actionsCell.innerHTML = '';
+        let enregistrerButton = document.createElement("button");
+        enregistrerButton.className = "button is-success is-small";
+        enregistrerButton.textContent = "Enregistrer";
+        enregistrerButton.onclick = function() {
+           enregistrerModification(id);
+        };
+        
+        actionsCell.appendChild(enregistrerButton);
+        
+        }
+function chargerInscription(search= ''){
+            const url = search ? `/api/register?search=${search}` : '/api/register'
+            fetch(url)
+            .then(response=>response.json())
+            .then(inscriptions =>{
+                const table = document.getElementById("listeEtudiants");
+                table.innerHTML = ''; // reinitialise le tableau
+                console.log("Je vais faire une boucle sur : ", inscriptions)
+                inscriptions.forEach(inscription=>{
+                 ajouterInscription(inscription)
+                })
+            })
+            .catch(error => console.log('Erreur lors de la recuperation des inscriptions :', error))
+        }
+chargerInscription();
+
 
 function enregisterInscription(inscription) {
     fetch('/api/register', {
@@ -76,6 +158,30 @@ function enregisterInscription(inscription) {
         }
     });
 }
+
+
+function ajouterChampDeTexte(id){
+    const row = document.getElementById(`row-${id}`);
+    const cells = row.querySelectorAll('td');
+    
+    //AJouter des champs de texte dans chaque cellule
+    for(let i=0; i<cells.length - 1; i++){
+        let cellValue = cells[i].textContent;
+       cells[i].innerHTML = `<input type="text" class="input" value="${cellValue}">`;
+    }
+    //modiifier les boutons "modifier" et "supprimer" en Enregistrer
+    let actionsCell = cells[4];
+    actionsCell.innerHTML = '';
+    let enregistrerButton = document.createElement("button");
+    enregistrerButton.className = "button is-success is-small";
+    enregistrerButton.textContent = "Enregistrer";
+    enregistrerButton.onclick = function() {
+       enregistrerModification(id);
+    };
+    
+    actionsCell.appendChild(enregistrerButton);
+    
+    }
 
 const loginForm = document.getElementById("loginForm")
 
@@ -341,3 +447,29 @@ function valideUsername(username) {
 
     return usernamePattern.test(username)
 }
+
+function ajouterCookie(inscription){
+    document.cookie = `username=${encodeURIComponent(inscription.username)}; path=/;`;
+    document.cookie = `email=${encodeURIComponent(inscription.email)}; path=/;`;
+    document.cookie = `password=${encodeURIComponent(inscription.password)}; path=/;`;
+    alert("Donnees cookies sauvegardees....")
+}
+
+document.getElementById("afficherCookies").addEventListener("click", function(){
+     const cookies = document.cookie.split('; ');
+     
+     if(cookies.length ===1 && cookies[0]===""){
+        alert("Aucun cookie enregistree");
+        return;
+     }
+     const cookieFormates = cookies.map(cookie =>{
+            const [cle, valeur] = cookie.split('=');
+            return `${cle} : ${decodeURIComponent(valeur)}`;
+
+     }).join('\n');
+     
+     alert(`Cookies enregistrees: \n\n ${cookieFormates}`)
+    
+
+})
+
