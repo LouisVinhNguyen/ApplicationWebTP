@@ -1,7 +1,5 @@
 // Authentification routes (POST /api/register, POST /api/login, POST /api/logout)
 
-const { userInfo } = require("os");
-
 inscriptionForm = document.getElementById("inscriptionForm")
 
 if (inscriptionForm) {
@@ -179,22 +177,27 @@ function logoutUser() {
 //                              PUT /api/articles/:id, DELETE /api/articles/:id)
 
 articleForm = document.getElementById("articleForm")
+
 if (articleForm) {
     articleForm.addEventListener("submit", function(event) {
         event.preventDefault();  // Empêche la soumission du formulaire
+
         const article = {
             username: document.getElementById("username").value,
-            title: document.getElementById("titre").value,
-            content: document.getElementById("content").value
+            title: document.getElementById("title").value,
+            content: document.getElementById("content").value,
+            image_url: document.getElementById("image_url").value
         };
+
         if (!article.username || !article.title || !article.content) {
-            alert("Veuillez remplir tous les champs.");
+            alert("Veuillez remplir tous les champs requis.");
             return;
-        }
+        };
+
         enregistrerArticle(article);
-        document.getElementById("formArticle").reset();
     });
 }
+
 function enregistrerArticle(article) {
     fetch('/api/articles', {
         method: 'POST',
@@ -211,7 +214,7 @@ function enregistrerArticle(article) {
     })
     .then(articleFromServeur => {
         console.log('Article enregistrer! :', articleFromServeur);
-        document.getElementById("formArticle").reset();
+        document.getElementById("articleForm").reset();
         // Rediriger vers admin.html après succès
         window.location.href = './Admin.html';
     })
@@ -221,11 +224,13 @@ function enregistrerArticle(article) {
             alert('Le serveur est inaccessible. Vérifiez votre connexion ou réessayez plus tard.');
         } else {
             console.error('Erreur lors de l\'enregistrement de l\'article :', error);
-            alert(`Une erreur s'est produite : ${error.message}`);
+            alert(`Une erreur s'est produite: ${error.message}`);
         }
     });
 }
-fetch('/api/articles')
+
+function chargerArticle() {
+    fetch('/api/articles')
     .then(response => response.json())
     .then(articles => {
         const container = document.getElementById('articles-container');
@@ -254,6 +259,8 @@ fetch('/api/articles')
         });
     })
     .catch(error => console.error('Error fetching articles:', error));
+};
+chargerArticle();
 
 // Routes Gestion des Commentaires (POST /api/articles/:id/comments, GET /api/articles/:id/)
 
