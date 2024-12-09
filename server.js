@@ -409,6 +409,35 @@ app.delete('/api/articles/:id', async (req, res) => {
 });
 
 
+// Contact
+
+/**
+ * Route POST : Ajouter un nouveau message de contact
+ * Cette route permet de recevoir un message via une requête POST.
+ */
+app.post('/api/contact', async (req, res) => {
+  const { nomC,  courriel, messages } = req.body;
+  console.log("Request received:", req.body);
+
+  if (!nomC || !courriel || !messages) {
+    return res.status(400).json({ message: 'Tous les champs sont obligatoires.' });
+  }
+
+  if (!validateEmail(courriel)) {
+    return res.status(400).json({ message: "L'adresse email est invalide." });
+  }
+
+  try {
+    const [numMes] = await db('contact').insert({ nomC, courriel , messages });
+    const contact = await db('contact').where({ numMes }).first();
+    res.status(201).json(contact);
+  } catch (error) {
+    console.error("Erreur lors de l'ajout :", error.message);
+    res.status(500).json({ message: 'Erreur lors de l’envoi du message.', error: error.message });
+}
+});
+
+
 ////////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////

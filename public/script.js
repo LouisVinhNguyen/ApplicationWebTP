@@ -414,11 +414,6 @@ function ajouterArticleIndex(article) {
                 </div>
                 <div class="card-content">
                     <div class="media">
-                        <div class="media-left">
-                            <figure class="image is-48x48">
-                                <img src="${article.avatar || 'https://bulma.io/assets/images/placeholders/96x96.png'}" alt="Avatar">
-                            </figure>
-                        </div>
                         <div class="media-content">
                             <p class="title is-4">${article.title}</p>
                             <p class="subtitle is-6">@${article.username}</p>
@@ -427,7 +422,7 @@ function ajouterArticleIndex(article) {
                     <div class="content">
                         ${article.content}
                         <br />
-                        ${article.created_ad}
+                        <time>${article.created_ad}</time>
                     </div>
                 </div>
             </div>
@@ -713,6 +708,79 @@ function supprimerArticle(id, row) {
     });
 }
 
+// Route Contact
+
+/*
+ * Route POST /api/contact
+ * Cette route envoi les messages depuis le form contact vers la BDD
+ */
+
+contactForm = document.getElementById("messageContact")
+
+if (contactForm) {
+
+    contactForm.addEventListener("submit", function(event) {
+        event.preventDefault();  // Empêche la soumission du formulaire
+
+        const contact = {
+            nomC: document.getElementById("nomC").value,  
+            courriel: document.getElementById("courriel").value, 
+            messages: document.getElementById("messages").value  
+        };
+
+        console.log(contact);
+
+        // Vérification simple que tous les champs sont remplis
+        if (!contact.nomC || !contact.courriel || !contact.messages) {  
+            alert("Veuillez remplir tous les champs.");
+            return;
+        }
+
+        if (!validateEmail(contact.courriel)) {
+            alert("L'adresse mail saisie n'est pas valide.");
+            return;
+        }
+
+        enregistrerMessage(contact);
+        document.getElementById("messageContact").reset();
+    });
+
+} else {
+    // The form does not exist on this page, so we can safely ignore it.
+    console.log("No form with id 'messageContact' on this page.");
+};
+
+function enregistrerMessage(contact) {
+    fetch('/api/contact', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(contact)
+    })
+    .then(response => {
+        if (!response.ok) {
+            return response.json().then(errorData => {
+                throw new Error(errorData.message || 'Une erreur est survenue.');
+            });
+        }
+        return response.json();
+    })
+    .then(messageFromServeur => {
+        console.log('Message envoyé :', messageFromServeur);
+        // Rediriger vers index.html après succès
+        alert("Votre message a été reçu avec succès.")
+    })
+    .catch(error => {
+        if (error.message === 'Failed to fetch') {
+            console.error('Erreur : Impossible de se connecter au serveur.');
+            alert('Le serveur est inaccessible. Vérifiez votre connexion ou réessayez plus tard.');
+        } 
+        else {
+            // Gérer d'autres types d'erreurs
+            console.error('Erreur lors de l\'enregistrement de l\'inscription :', error);
+            alert(`Une erreur s'est produite : ${error.message}`);
+        }
+    });
+}
 
 ////////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////

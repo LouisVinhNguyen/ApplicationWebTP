@@ -1,10 +1,10 @@
 -- SQLite
 PRAGMA foreign_keys = ON;
 
-drop table if exists comments;
-drop table if exists articles;
---drop table if exists contact;
+--drop table if exists comments;
+--drop table if exists articles;
 --drop table if exists users;
+
 
 CREATE TABLE IF NOT EXISTS users (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -38,7 +38,6 @@ CREATE TABLE IF NOT EXISTS comments (
         FOREIGN KEY (user_id) REFERENCES users (id)
 );
 
-
 CREATE TABLE IF NOT EXISTS contact (
     numMes INTEGER PRIMARY KEY AUTOINCREMENT,
     nomC TEXT NOT NULL,
@@ -46,5 +45,3 @@ CREATE TABLE IF NOT EXISTS contact (
     messages TEXT NOT NULL,
     sent_ad TIMESTAMP DEFAULT CURRENT_TIMESTAMP 
 );
-
-
