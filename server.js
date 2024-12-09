@@ -14,6 +14,9 @@ app.use(bodyParser.json());
 
 const path = require('path');
 
+const cookieParser = require('cookie-parser');
+app.use(cookieParser());
+
 app.use(express.static(path.join(__dirname, 'public')));
 
 app.get('/', (req, res) => {
@@ -116,32 +119,47 @@ app.post('/api/register', async (req, res) => {
  */
 
 app.post('/api/login', async (req, res) => {
-    const { email, password } = req.body;
-  
-    if (!email || !password) {
-        return res.status(400).json({ message: 'Tous les champs sont obligatoires.' });
-    }
-  
-    if (!validateEmail(email)) {
-        return res.status(400).json({ message: "L'adresse email est invalide." });
-    }
-  
-    try {
-        const user = await db('users').where({ email }).first();
-        if (!user) {
-            return res.status(404).json({ message: 'Utilisateur non trouvé.' });
-        }
-  
-        const passwordMatch = await bcrypt.compare(password, user.password);
-        if (!passwordMatch) {
-            return res.status(401).json({ message: 'Mot de passe incorrect.' });
-        }
-  
-        res.json({ message: 'Connexion réussie' });
-    } catch (error) {
-        res.status(500).json({ message: 'Erreur lors de la connexion.', error: error.message });
-    }
+  const { email, password } = req.body;
+
+  if (!email || !password) {
+      return res.status(400).json({ message: 'Tous les champs sont obligatoires.' });
+  }
+
+  if (!validateEmail(email)) {
+      return res.status(400).json({ message: "L'adresse email est invalide." });
+  }
+
+  try {
+      const user = await db('users').where({ email }).first();
+      if (!user) {
+          return res.status(404).json({ message: 'Utilisateur non trouvé.' });
+      }
+
+      const passwordMatch = await bcrypt.compare(password, user.password);
+      if (!passwordMatch) {
+          return res.status(401).json({ message: 'Mot de passe incorrect.' });
+      }
+
+      // Create a session or token
+      const sessionData = {
+          userId: user.id,
+          email: user.email
+      };
+
+      // Set a signed cookie
+      res.cookie('session', JSON.stringify(sessionData), {
+          httpOnly: true, // Prevent access by JavaScript
+          secure: true,  // Use HTTPS
+          signed: true,  // Sign the cookie
+          maxAge: 24 * 60 * 60 * 1000 // 1 day
+      });
+
+      res.json({ message: 'Connexion réussie' });
+  } catch (error) {
+      res.status(500).json({ message: 'Erreur lors de la connexion.', error: error.message });
+  }
 });
+
 
 /*
  * Route POST : Logout

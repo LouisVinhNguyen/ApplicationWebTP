@@ -43,7 +43,7 @@
         <div class="navbar-end">
           <div class="navbar-item">
             <div class="buttons">
-              <a class="button is-danger" href="#" id="logoutButton">
+              <a class="button couleur-bg3 text-white" href="#" id="logoutButton">
                 <strong>Log out</strong>
               </a>
             </div>
@@ -63,22 +63,29 @@
 
       </div>
     </div>
-    <div id="articleModal" class="modal is-large">
-      <div class="modal-background "></div>
-      <div class="modal-content ">
-          <div class="box couleur-bg2">
-            <figure class="image is-4by3">
-              <img id="modalImage" src="" alt="Article Image">
-            </figure>
 
-              <h2 id="modalTitle" class="title couleur-titres"></h2>
-              <p class="couleur-titres" id="modalContent"></p>
-              <div class="couleur-titres" id="modalAuthor"></div>
-              <time class="couleur-titres" id="modalDate"></time>
+    <div class="modal is-large" id="articleModal">
+      <div class="modal-background"></div>
+      <div class="modal-card">
+        <header class="modal-card-head">
+          <p id="modalTitle" class="modal-card-title"></p>
+          <button class="delete" aria-label="close"></button>
+        </header>
+        <section class="modal-card-body">
+          <figure class="image">
+            <img id="modalImage" src="" alt="Article Image">
+          </figure>
+          <p id="modalContent"></p>
+        </section>
+        <footer class="modal-card-foot">
+          <div class="">
+            <p id="modalAuthor"></p> 
+            <time id="modalDate"></time>
           </div>
+        </footer>
       </div>
-      <button class="modal-close is-large" aria-label="close"></button>
-  </div>
+    </div>
+
   </main>
   
   

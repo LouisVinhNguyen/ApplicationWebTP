@@ -5,16 +5,15 @@
 }
 
 .couleur-titres{
-    color: #D8491D;
+    color: #3b78aa;
 }
 
 .couleur-textes{
-    
     color: #7E7C43;
 }
 
 .couleur-mainbg{
-    background-color: #855C3E;
+    background-color: #013D6F;
 }
 
 .couleur-bg{
@@ -22,5 +21,13 @@
 }
 
 .couleur-bg2{
-    background-color: #878E7C;
+    background-color: #071E44;
+}
+
+.couleur-bg3{
+    background-color: #3b78aa;
+}
+
+.text-white {
+    color: white;
 }
