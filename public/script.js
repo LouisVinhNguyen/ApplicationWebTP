@@ -1,12 +1,16 @@
-// Authentification routes (POST /api/register, POST /api/login, POST /api/logout)
+// 1. Authentification:
 
+/*
+* Route POST /api/register
+* Cette route ajoute des utilisateurs a la table "users"
+*/
 inscriptionForm = document.getElementById("inscriptionForm")
 
 if (inscriptionForm) {
 
     inscriptionForm.addEventListener("submit", function(event) {
         event.preventDefault();  // Empêche la soumission du formulaire
-        
+
         // Récupération des valeurs du formulaire
         const inscription = {
             username: document.getElementById("username").value,
@@ -34,11 +38,8 @@ if (inscriptionForm) {
             return;
         }
 
-        ajouterCookie(inscription);
         // Appel de la fonction ajouter pour insérer une nouvelle ligne dans le tableau et dans la base de donnees
-        
         enregisterInscription(inscription);
-        document.getElementById("inscriptionForm").reset();
     });
 } else {
     console.log("No form with id 'inscriptionForm' on this page.");
@@ -76,6 +77,11 @@ function enregisterInscription(inscription) {
         }
     });
 }
+
+/**
+ * Route POST : Login par email
+ * Cette route permet de confirmer que l'utilisateur existe dans la base de données et le connecte
+ */
 
 const loginForm = document.getElementById("loginForm")
 
@@ -138,10 +144,13 @@ function loginUser(login) {
     });
 }
 
+/*
+ * Route POST : Logout
+ * Cette route permet deconnecte l'utilisateur
+ */
 const logoutButton = document.getElementById("logoutButton");
 
 if (logoutButton) {
-
     logoutButton.addEventListener("click", function(event) {
         event.preventDefault();  // Prevent the default behavior (e.g., following the link)
         logoutUser();  // Call the logout function
@@ -149,7 +158,6 @@ if (logoutButton) {
 } else {
     console.log("Logout button not found");
 }
-
 
 function logoutUser() {
     fetch('/api/logout', {
@@ -175,26 +183,173 @@ function logoutUser() {
     });
 }
 
-// Routes Gestion des Articles (GET /api/articles, GET /api/articles/:id, POST /api/articles, 
-//                              PUT /api/articles/:id, DELETE /api/articles/:id)
+// 2. Gestion des Articles:
 
-articleForm = document.getElementById("articleForm")
+/*
+ * Route GET /api/articles :
+ * Cette route permet de charger les articles sur la page index.html
+ */
+
+function chargerArticlesIndex() {
+    fetch('/api/articles')
+        .then(response => response.json())
+        .then(articles => {
+            articles.forEach(article => {
+                ajouterArticleIndex(article);
+            });
+        })
+        .catch(error => {
+            if (error.message === 'Failed to fetch') {
+                console.error('Error: Unable to connect to the server.');
+                alert('The server is unavailable. Check your connection or try again later.');
+            } else {
+                console.log('Error fetching articles:', error);
+                alert(`An error occurred: ${error.message}`);
+            }
+        });
+}
+
+function ajouterArticleIndex(article) {
+    if (document.getElementById("listeArticles")) {
+        const listeArticles = document.getElementById("listeArticles");
+        const li = document.createElement('li');
+
+        li.innerHTML = `
+            <div class="card">
+                <div class="card-image">
+                    <figure class="image">
+                        <img src="${article.image_url || 'https://bulma.io/assets/images/placeholders/1280x960.png'}" alt="Image">
+                    </figure>
+                </div>
+                <div class="card-content">
+                    <div class="media">
+                        <div class="media-left">
+                            <figure class="image is-48x48">
+                                <img src="${article.avatar || 'https://bulma.io/assets/images/placeholders/96x96.png'}" alt="Avatar">
+                            </figure>
+                        </div>
+                        <div class="media-content">
+                            <p class="title is-4">${article.title}</p>
+                            <p class="subtitle is-6">@${article.author}</p>
+                        </div>
+                    </div>
+                    <div class="content">
+                        ${article.content}
+                        <br />
+                        <time datetime="${article.date}">${new Date(article.date).toLocaleString()}</time>
+                    </div>
+                </div>
+            </div>
+            <br>
+        `;
+
+        listeArticles.appendChild(li);
+    } else {
+        console.log("Aucune liste avec ID 'listeArticles'.");
+    }
+}
+
+// Call the function to load articles when the page loads
+if (document.getElementById("listeArticles")) {
+    chargerArticlesIndex();
+} else {
+    console.log("Aucune liste avec ID 'listeArticles'.");
+}
+
+function chargerArticlesAdmin() {
+    fetch('/api/articles')
+        .then(response => response.json())
+        .then(articles => {
+            articles.forEach(article => {
+                ajouterArticleAdmin(article);
+            });
+        })
+        .catch(error => {
+            if (error.message === 'Failed to fetch') {
+                console.error('Error: Unable to connect to the server.');
+                alert('The server is unavailable. Check your connection or try again later.');
+            } else {
+                console.log('Error fetching articles:', error);
+                alert(`An error occurred: ${error.message}`);
+            }
+        });
+}
+
+function ajouterArticleAdmin(article) {
+    if (document.getElementById("tableArticles")) {
+        let table = document.getElementById("tableArticles").getElementsByTagName('tbody')[0];
+        let newRow = table.insertRow();
+        newRow.id = `row-${article.id}`;
+
+        // Insert article data into cells
+        newRow.insertCell(0).textContent = article.id;
+        newRow.insertCell(1).textContent = article.title;
+        newRow.insertCell(2).textContent = article.content;
+        newRow.insertCell(3).textContent = article.image_url;
+        newRow.insertCell(4).textContent = article.views;
+        newRow.insertCell(5).textContent = article.admin_id;
+        newRow.insertCell(6).textContent = article.created_ad;
+
+        // Create action buttons
+        let actionsCell = newRow.insertCell(7);
+
+        // Edit button
+        let editButton = document.createElement("button");
+        editButton.className = "button is-warning is-small";
+        editButton.textContent = "Modifier";
+
+        // Delete button
+        let deleteButton = document.createElement("button");
+        deleteButton.className = "button is-danger is-small";
+        deleteButton.textContent = "Supprimer";
+
+        deleteButton.onclick = function() {
+            supprimerArticle(article.id, newRow);
+        };
+
+        editButton.onclick = function() {
+            activerModeEdition(newRow, article.id); // Passe la ligne entière en mode édition
+        };
+
+        actionsCell.appendChild(editButton);
+        actionsCell.appendChild(deleteButton);
+    } else {
+        console.log("Aucune table avec ID 'tableArticles'.");
+    }
+}
+
+// Call the function to load articles when the page loads
+if (document.getElementById("listeArticles")) {
+    chargerArticlesAdmin();
+} else {
+    console.log("Aucune liste avec ID 'listeArticles'.");
+}
+
+/*
+ * Route POST /api/articles :
+ * Cette route permet de creer des articles
+ */
+articleForm = document.getElementById("articleForm");
 if (articleForm) {
     articleForm.addEventListener("submit", function(event) {
-        event.preventDefault();  // Empêche la soumission du formulaire
+        event.preventDefault(); // Prevent form submission
         const article = {
             username: document.getElementById("username").value,
-            title: document.getElementById("titre").value,
-            content: document.getElementById("content").value
+            title: document.getElementById("title").value,
+            content: document.getElementById("content").value,
+            image_url: document.getElementById("image_url").value || null // Use null if empty
         };
+
         if (!article.username || !article.title || !article.content) {
             alert("Veuillez remplir tous les champs.");
             return;
         }
+
         enregistrerArticle(article);
-        document.getElementById("formArticle").reset();
+        document.getElementById("articleForm").reset();
     });
 }
+
 function enregistrerArticle(article) {
     fetch('/api/articles', {
         method: 'POST',
@@ -211,7 +366,7 @@ function enregistrerArticle(article) {
     })
     .then(articleFromServeur => {
         console.log('Article enregistrer! :', articleFromServeur);
-        document.getElementById("formArticle").reset();
+        document.getElementById("articleForm").reset();
         // Rediriger vers admin.html après succès
         window.location.href = './Admin.html';
     })
@@ -226,123 +381,154 @@ function enregistrerArticle(article) {
     });
 }
 
+/*
+ * Route PUT /api/articles/:id :
+ * Cette route permet de modifier la valeur des articles
+ */
+// Function to activate edit mode for an article
+function activerModeEdition(row, id) {
+    // Récupérer les valeurs actuelles des cellules
+    const title = row.cells[1].textContent;
+    const content = row.cells[2].textContent;
+    const imageUrl = row.cells[3].textContent;
+    const views = row.cells[4].textContent;
+    const adminId = row.cells[5].textContent;
+    const createdDate = row.cells[6].textContent;
 
-// Routes Gestion des Commentaires (POST /api/articles/:id/comments, GET /api/articles/:id/)
+    // Transformer chaque cellule en champ de saisie
+    row.cells[1].innerHTML = `<input type="text" value="${title}" class="input is-small">`;
+    row.cells[2].innerHTML = `<input type="text" value="${content}" class="input is-small">`;
+    row.cells[3].innerHTML = `<input type="text" value="${imageUrl}" class="input is-small">`;
+    row.cells[4].innerHTML = `<input type="number" value="${views}" class="input is-small">`;
+    row.cells[5].innerHTML = `<input type="number" value="${adminId}" class="input is-small">`;
+    row.cells[6].innerHTML = `<input type="text" value="${createdDate}" class="input is-small" disabled>`; // Date should not be editable
 
-// Routes Recherche et Pagination (Route GET /api/articles/search?q=mot-cle)
+    // Remplacer les boutons d'action par un bouton "Enregistrer"
+    const actionsCell = row.cells[7];
+    actionsCell.innerHTML = "";  // Efface le contenu actuel
 
-//Other
+    let saveButton = document.createElement("button");
+    saveButton.className = "button is-primary is-small";
+    saveButton.textContent = "Enregistrer";
 
-contactForm = document.getElementById("messageContact")
+    saveButton.onclick = function() {
+        enregistrerModification(row, id);
+    };
 
-if (contactForm) {
+    actionsCell.appendChild(saveButton);
+}
 
-    contactForm.addEventListener("submit", function(event) {
-        event.preventDefault();  // Empêche la soumission du formulaire
-        
-        const contact = {
-            nomC: document.getElementById("nomC").value,  
-            courriel: document.getElementById("courriel").value, 
-            messages: document.getElementById("messages").value  
-        };
+// Function to save the modifications and exit the edit mode
+function enregistrerModification(row, id) {
+    // Récupérer les valeurs des champs de saisie
+    const title = row.cells[1].querySelector("input").value;
+    const content = row.cells[2].querySelector("input").value;
+    const imageUrl = row.cells[3].querySelector("input").value;
+    const views = row.cells[4].querySelector("input").value;
+    const adminId = row.cells[5].querySelector("input").value;
 
-        console.log(contact);
+    // Validate inputs
+    if (!title || !content || !imageUrl || !views || !adminId) {
+        alert("Tous les champs sont obligatoires.");
+        return;
+    }
 
-        // Vérification simple que tous les champs sont remplis
-        if (!contact.nomC || !contact.courriel || !contact.messages) {  
-            alert("Veuillez remplir tous les champs.");
-            return;
-        }
+    // Update the display of cells with the new values
+    row.cells[1].textContent = title;
+    row.cells[2].textContent = content;
+    row.cells[3].textContent = imageUrl;
+    row.cells[4].textContent = views;
+    row.cells[5].textContent = adminId;
 
-        if (!validateEmail(contact.courriel)) {
-            alert("L'adresse mail saisie n'est pas valide.");
-            return;
-        }
+    // Remettre les boutons "Modifier" et "Supprimer" dans la cellule des actions
+    const actionsCell = row.cells[7];
+    actionsCell.innerHTML = "";
 
-        enregistrerMessage(contact);
-        document.getElementById("messageContact").reset();
-    });
+    let editButton = document.createElement("button");
+    editButton.className = "button is-warning is-small";
+    editButton.textContent = "Modifier";
+    editButton.onclick = function() {
+        activerModeEdition(row, id);
+    };
 
-} else {
-    // The form does not exist on this page, so we can safely ignore it.
-    console.log("No form with id 'messageContact' on this page.");
-};
+    let deleteButton = document.createElement("button");
+    deleteButton.className = "button is-danger is-small";
+    deleteButton.textContent = "Supprimer";
+    deleteButton.onclick = function() {
+        supprimerArticle(id, row);
+    };
 
-function enregistrerMessage(contact) {
-    fetch('/api/contact', {
-        method: 'POST',
+    actionsCell.appendChild(editButton);
+    actionsCell.appendChild(deleteButton);
+
+    // Send modifications to the server
+    updateArticle(id, { title, content, imageUrl, views, adminId });
+}
+
+// Function to send the PUT request to the server and update the article
+function updateArticle(id, article) {
+    fetch(`/api/articles/${id}`, {
+        method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(contact)
+        body: JSON.stringify(article)
     })
     .then(response => {
         if (!response.ok) {
-            return response.json().then(errorData => {
-                throw new Error(errorData.message || 'Une erreur est survenue.');
-            });
+            console.log('Erreur lors de la mise à jour de l\'article :', response.statusText);
         }
-        return response.json();
-    })
-    .then(messageFromServeur => {
-        console.log('Message envoyé :', messageFromServeur);
-        // Rediriger vers index.html après succès
-        alert("Votre message a été reçu avec succès.")
     })
     .catch(error => {
         if (error.message === 'Failed to fetch') {
             console.error('Erreur : Impossible de se connecter au serveur.');
             alert('Le serveur est inaccessible. Vérifiez votre connexion ou réessayez plus tard.');
-        } 
-        else {
-            // Gérer d'autres types d'erreurs
-            console.error('Erreur lors de l\'enregistrement de l\'inscription :', error);
+        } else {
+            console.log('Erreur lors de la requête de mise à jour :', error);
             alert(`Une erreur s'est produite : ${error.message}`);
         }
     });
 }
 
-function validateEmail(email) {
 
+/*
+ * Route DELETE /api/articles/:id :
+ * Cette route permet de modifier la valeur des articles
+ */
+function supprimerArticle(id, row) {
+    fetch(`/api/articles/${id}`, {
+        method: 'DELETE',
+    })
+    .then(response => {
+        if (response.status === 404) {
+            alert("L'article que vous essayez de supprimer n'existe pas.");
+        } else if (response.ok) {
+            row.remove();  // Remove the row from the table
+        }
+    })
+    .catch(error => {
+        if (error.message === 'Failed to fetch') {
+            console.error('Erreur : Impossible de se connecter au serveur.');
+            alert('Le serveur est inaccessible. Vérifiez votre connexion ou réessayez plus tard.');
+        } else {
+            // Handle other types of errors
+            console.error('Erreur lors de la suppression de l\'article :', error);   
+            alert(`Une erreur s'est produite : ${error.message}`);
+        }
+    });
+}
+
+
+////////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////
+// Extras
+function validateEmail(email) {
     const emailPattern = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
     
     return emailPattern.test(email);
 }
-
+  
 function valideUsername(username) {
-
-    usernamePattern = /^[a-zA-Z0-9_.]+$/;
-
+    const usernamePattern = /^[a-zA-Z0-9_.]+$/;
+  
     return usernamePattern.test(username)
 }
-
-
-
-
-
-
-
-
-function ajouterCookie(inscription){
-    document.cookie = `username=${encodeURIComponent(inscription.username)}; path=/;`;
-    document.cookie = `email=${encodeURIComponent(inscription.email)}; path=/;`;
-    document.cookie = `password=${encodeURIComponent(inscription.password)}; path=/;`;
-    alert("Donnees cookies sauvegardees....")
-}
-
-document.getElementById("afficherCookies").addEventListener("click", function(){
-     const cookies = document.cookie.split('; ');
-     
-     if(cookies.length ===1 && cookies[0]===""){
-        alert("Aucun cookie enregistree");
-        return;
-     }
-     const cookieFormates = cookies.map(cookie =>{
-            const [cle, valeur] = cookie.split('=');
-            return `${cle} : ${decodeURIComponent(valeur)}`;
-
-     }).join('\n');
-     
-     alert(`Cookies enregistrees: \n\n ${cookieFormates}`)
-    
-
-})
-

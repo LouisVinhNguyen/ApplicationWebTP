@@ -100,15 +100,7 @@
 
   <script src="../script.js"></script>
   <script>
-    fetch('/api/validate-token', { method: 'GET', credentials: 'include' })
-        .then(response => {
-            if (!response.ok) {
-                window.location.href = '/login.html'; // Redirect if token is invalid
-            }
-        })
-        .catch(() => {
-            window.location.href = '/login.html';
-        });
+
   </script>
 
 </html>

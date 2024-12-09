@@ -52,67 +52,28 @@
     </nav>
     
   </header>
+
   <main>
-    <div id="articles-container"></div>
+    <div class="container">
+      <div class="notification is-primary">
+
+        <ul id="listeArticles">
+        </ul>
+
+      </div>
+    </div>
   </main>
 
   <footer>
 
   </footer>
-  <script src="../script.js"></script>
-<script>
-    // Récupérer les articles depuis l'API
-    fetch('/api/articles?page=1') // Vous pouvez ajuster la page pour récupérer d'autres articles
-      .then(response => response.json())
-      .then(articles => {
-        const container = document.getElementById('articles-container');
-        
-        // Vérifier si des articles ont été récupérés
-        if (articles.length === 0) {
-          container.innerHTML = '<p>Aucun article trouvé.</p>';
-        } else {
-          // Ajouter chaque article à l'interface
-          articles.forEach(article => {
-            const articleCard = `
-              <div class="notification is-primary">
-                <div class="card is-small">
-                  <div class="card-header">
-                    <p class="card-header-title">${article.title}</p>
-                  </div>
-                  <div class="card-image">
-                    <figure class="image is-4by3">
-                      <img src="${article.image_url || 'https://via.placeholder.com/800x600'}" alt="Image for ${article.title}">
-                    </figure>
-                  </div>
-                  <div class="card-content">
-                    <div class="content">
-                      <p>${article.content}</p>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            `;
-            container.innerHTML += articleCard; // Ajouter la carte d'article au conteneur
-          });
-        }
-      })
-      .catch(error => {
-        console.error('Erreur lors de la récupération des articles:', error);
-      });
-
-    // Vérification du token pour l'authentification
-    fetch('/api/validate-token', { method: 'GET', credentials: 'include' })
-      .then(response => {
-        if (!response.ok) {
-          window.location.href = '/login.html'; // Redirection si le token est invalide ou manquant
-        }
-      })
-      .catch(() => {
-        window.location.href = '/login.html'; // Redirection en cas d'erreur
-      });
-</script>
 
 </body>
+
+<script src="../script.js"></script>
+<script>
+</script>
+
 
 
 </html>

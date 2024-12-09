@@ -60,7 +60,8 @@
       <div class="hero-body">
         <div class="container">
           <div class="columns is-centered">
-            <div class="column is-8-tablet is-8-desktop is-8-widescreen">
+            <div class="column is-16-tablet is-16-desktop is-16-widescreen">
+              <h2 class="title mt-5">Formulaire d'ajout des articles</h2>
               <form action="" class="box" id="articleForm">
 
                 <div class="field">
@@ -121,6 +122,63 @@
           </div>
         </div>
       </div>
+
+      <div class="hero-body">
+        <div class="container">
+          <div class="columns is-centered">
+            <div class="column is-12">
+              <h2 class="title mt-5">Liste des articles</h2>
+              <table class="table is-fullwidth is-striped box" id="tableArticles">
+                <thead>
+                  <tr>
+                    <th>ID</th>
+                    <th>Title</th>
+                    <th>Content</th>
+                    <th>URL image</th>
+                    <th>Views</th>
+                    <th>ID Admin</th>
+                    <th>Date created</th>
+                    <th>Actions</th> <!-- Add Actions column -->
+                  </tr>
+                </thead>
+                <tbody id="listeArticles">
+                  <!-- Articles will be added dynamically here -->
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+
+      <div class="hero-body">
+        <div class="container">
+          <div class="columns is-centered">
+            <div class="column is-16-tablet is-16-desktop is-16-widescreen">
+
+              <h2 class="title mt-5">Liste des personnes inscrits</h2>
+              <table class="table is-fullwidth is-striped box" id="tableUsers">
+                <thead>
+                  <tr>
+                    <th>ID</th>
+                    <th>Username</th>
+                    <th>Email</th>
+                    <th>Password</th>
+                    <th>Role</th>
+                    <th>Date created</th>
+                    <th>Actions</th> <!-- Add Actions column -->
+                  </tr>
+                </thead>
+                <tbody id="listeUsers">
+                  <!-- Articles will be added dynamically here -->
+                </tbody>
+              </table>
+               
+                        
+            </div>
+          </div>
+        </div>
+      </div>
     </section>
   
   </main>
@@ -128,6 +186,8 @@
   <footer>
 
   </footer>
+
+</body>
 
 <script src="../script.js"></script>
 
