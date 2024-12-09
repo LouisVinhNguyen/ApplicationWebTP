@@ -382,7 +382,7 @@ function supprimerUtilisateur(id, row) {
  */
 
 function chargerArticlesIndex() {
-    fetch('/api/articles')
+    fetch('/api/articlesUsers')
         .then(response => response.json())
         .then(articles => {
             articles.forEach(article => {
@@ -421,13 +421,13 @@ function ajouterArticleIndex(article) {
                         </div>
                         <div class="media-content">
                             <p class="title is-4">${article.title}</p>
-                            <p class="subtitle is-6">@${article.author}</p>
+                            <p class="subtitle is-6">@${article.username}</p>
                         </div>
                     </div>
                     <div class="content">
                         ${article.content}
                         <br />
-                        <time datetime="${article.date}">${new Date(article.date).toLocaleString()}</time>
+                        ${article.created_ad}
                     </div>
                 </div>
             </div>
@@ -618,7 +618,7 @@ function enregistrerModification(row, id) {
     const adminId = row.cells[5].querySelector("input").value;
 
     // Validate inputs
-    if (!title || !content || !imageUrl || !views || !adminId) {
+    if (!title || !content || !views || !adminId) {
         alert("Tous les champs sont obligatoires.");
         return;
     }

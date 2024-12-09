@@ -229,6 +229,29 @@ app.delete('/api/users/:id', async (req, res) => {
  * Route GET :
  * Cette route permet de charger les articles sur la page index.html
  */
+app.get('/api/articlesUsers', async (req, res) => {
+  try {
+
+    const articles = await db('articles')
+  .join('users', 'articles.admin_id', '=', 'users.id')
+  .select('articles.*', 'users.username', 'users.email')
+  .debug();  // This will log the SQL query being executed
+
+
+    // Send the fetched articles as JSON
+    res.json(articles);
+  } catch (error) {
+    // Handle errors gracefully
+    res.status(500).json({ message: 'Error fetching articles.', error: error.message });
+  }
+});
+
+
+
+/*
+ * Route GET :
+ * Cette route permet de charger les articles sur la page admin.html
+ */
 
 // Route to fetch articles
 app.get('/api/articles', async (req, res) => {
