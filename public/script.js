@@ -44,88 +44,6 @@ if (inscriptionForm) {
     console.log("No form with id 'inscriptionForm' on this page.");
 };
 
-
-
-function ajouterInscription(users) {
-    // Ajout d'une nouvelle ligne au tableau
-    let table = document.getElementById("listeInscription");
-    let newRow = table.insertRow();
-    newRow.id = `row-${users.id}`;
-
-    // Insertion des cellules avec les informations saisies
-    newRow.insertCell(0).textContent = users.username;  // Assuming 'username' is the field
-    newRow.insertCell(1).textContent = users.email; 
-    newRow.insertCell(2).textContent = users.role
-
-    // Ajout du bouton "Modifier " et "Supprimer" dans la colonne des actions
-    let actionsCell = newRow.insertCell(4);
-
-    let modifierButton = document.createElement("button");
-    modifierButton.className = "button is-warning is-small";
-    modifierButton.textContent = "Modifier";
-    modifierButton.addEventListener('click', function() {
-        ajouterChampDeTexte(inscription.id);
-    });
-    
-    let deleteButton = document.createElement("button");
-    deleteButton.className = "button is-danger is-small";
-    deleteButton.textContent = "Supprimer";
-    deleteButton.addEventListener('click', function() {
-        supprimer(inscription.id);  // Ensures correct function binding
-    });
-    
-
-    // Gestion de l'événement du bouton "Supprimer" via la fonction supprimer
-    deleteButton.onclick = function() {
-        supprimer(inscription.id);
-    };
-
-    actionsCell.appendChild(modifierButton);
-    actionsCell.appendChild(deleteButton);
-
-    // Réinitialiser le formulaire
-    document.getElementById("inscriptionForm").reset();
-    }
-
-    function ajouterChampDeTexte(id){
-        const row = document.getElementById(`row-${id}`);
-        const cells = row.querySelectorAll('td');
-        
-        //AJouter des champs de texte dans chaque cellule
-        for(let i=0; i<cells.length - 1; i++){
-            let cellValue = cells[i].textContent;
-           cells[i].innerHTML = `<input type="text" class="input" value="${cellValue}">`;
-        }
-        //modiifier les boutons "modifier" et "supprimer" en Enregistrer
-        let actionsCell = cells[4];
-        actionsCell.innerHTML = '';
-        let enregistrerButton = document.createElement("button");
-        enregistrerButton.className = "button is-success is-small";
-        enregistrerButton.textContent = "Enregistrer";
-        enregistrerButton.onclick = function() {
-           enregistrerModification(id);
-        };
-        
-        actionsCell.appendChild(enregistrerButton);
-        
-        }
-function chargerInscription(search= ''){
-            const url = search ? `/api/register?search=${search}` : '/api/register'
-            fetch(url)
-            .then(response=>response.json())
-            .then(inscriptions =>{
-                const table = document.getElementById("listeEtudiants");
-                table.innerHTML = ''; // reinitialise le tableau
-                console.log("Je vais faire une boucle sur : ", inscriptions)
-                inscriptions.forEach(inscription=>{
-                 ajouterInscription(inscription)
-                })
-            })
-            .catch(error => console.log('Erreur lors de la recuperation des inscriptions :', error))
-        }
-chargerInscription();
-
-
 function enregisterInscription(inscription) {
     fetch('/api/register', {
         method: 'POST',
@@ -158,30 +76,6 @@ function enregisterInscription(inscription) {
         }
     });
 }
-
-
-function ajouterChampDeTexte(id){
-    const row = document.getElementById(`row-${id}`);
-    const cells = row.querySelectorAll('td');
-    
-    //AJouter des champs de texte dans chaque cellule
-    for(let i=0; i<cells.length - 1; i++){
-        let cellValue = cells[i].textContent;
-       cells[i].innerHTML = `<input type="text" class="input" value="${cellValue}">`;
-    }
-    //modiifier les boutons "modifier" et "supprimer" en Enregistrer
-    let actionsCell = cells[4];
-    actionsCell.innerHTML = '';
-    let enregistrerButton = document.createElement("button");
-    enregistrerButton.className = "button is-success is-small";
-    enregistrerButton.textContent = "Enregistrer";
-    enregistrerButton.onclick = function() {
-       enregistrerModification(id);
-    };
-    
-    actionsCell.appendChild(enregistrerButton);
-    
-    }
 
 const loginForm = document.getElementById("loginForm")
 
@@ -285,27 +179,22 @@ function logoutUser() {
 //                              PUT /api/articles/:id, DELETE /api/articles/:id)
 
 articleForm = document.getElementById("articleForm")
-
 if (articleForm) {
     articleForm.addEventListener("submit", function(event) {
         event.preventDefault();  // Empêche la soumission du formulaire
-
         const article = {
             username: document.getElementById("username").value,
-            title: document.getElementById("title").value,
-            content: document.getElementById("content").value,
-            image_url: document.getElementById("image_url").value
+            title: document.getElementById("titre").value,
+            content: document.getElementById("content").value
         };
-
         if (!article.username || !article.title || !article.content) {
-            alert("Veuillez remplir tous les champs requis.");
+            alert("Veuillez remplir tous les champs.");
             return;
-        };
-
+        }
         enregistrerArticle(article);
+        document.getElementById("formArticle").reset();
     });
 }
-
 function enregistrerArticle(article) {
     fetch('/api/articles', {
         method: 'POST',
@@ -322,7 +211,7 @@ function enregistrerArticle(article) {
     })
     .then(articleFromServeur => {
         console.log('Article enregistrer! :', articleFromServeur);
-        document.getElementById("articleForm").reset();
+        document.getElementById("formArticle").reset();
         // Rediriger vers admin.html après succès
         window.location.href = './Admin.html';
     })
@@ -332,43 +221,11 @@ function enregistrerArticle(article) {
             alert('Le serveur est inaccessible. Vérifiez votre connexion ou réessayez plus tard.');
         } else {
             console.error('Erreur lors de l\'enregistrement de l\'article :', error);
-            alert(`Une erreur s'est produite: ${error.message}`);
+            alert(`Une erreur s'est produite : ${error.message}`);
         }
     });
 }
 
-function chargerArticle() {
-    fetch('/api/articles')
-    .then(response => response.json())
-    .then(articles => {
-        const container = document.getElementById('articles-container');
-        articles.forEach(article => {
-            // Create a Bulma card for each article
-            const articleElement = document.createElement('div');
-            articleElement.classList.add('column', 'is-one-third');
-            articleElement.innerHTML = `
-                <div class="card">
-                    <div class="card-header">
-                        <p class="card-header-title">${article.title}</p>
-                    </div>
-                    <div class="card-image">
-                        <figure class="image is-4by3">
-                            <img src="${article.image_url}" alt="Image for ${article.title}">
-                        </figure>
-                    </div>
-                    <div class="card-content">
-                        <div class="content">
-                            <p>${article.content}</p>
-                        </div>
-                    </div>
-                </div>
-            `;
-            container.appendChild(articleElement);
-        });
-    })
-    .catch(error => console.error('Error fetching articles:', error));
-};
-chargerArticle();
 
 // Routes Gestion des Commentaires (POST /api/articles/:id/comments, GET /api/articles/:id/)
 
@@ -456,6 +313,13 @@ function valideUsername(username) {
 
     return usernamePattern.test(username)
 }
+
+
+
+
+
+
+
 
 function ajouterCookie(inscription){
     document.cookie = `username=${encodeURIComponent(inscription.username)}; path=/;`;

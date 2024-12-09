@@ -278,37 +278,45 @@ app.post('/api/articles', async (req, res) => {
 
 app.get('/api/articles', async (req, res) => {
   try {
-    const queryParams = req.query;
+    const page = parseInt(req.query.page) || 1; // Par défaut, la page 1
+    const limit = 5; // 5 articles par page
+    const offset = (page - 1) * limit;
 
-    // Liste des champs valides pour la table "inscription"
-    const validFields = ['id', 'title', 'content', 'image_url', 'views', 'admin_id'];
+    // Récupérer les articles avec pagination
+    const articles = await db('articles')
+      .select('id', 'title', 'content', 'image_url', 'views', 'created_ad')
+      .limit(limit)
+      .offset(offset);
 
-    // Vérification : assurez-vous que tous les champs spécifiés ne sont pas vides
-    for (const [key, value] of Object.entries(queryParams)) {
-      if (validFields.includes(key) && (!value || value.trim() === '')) {
-        return res.status(400).json({ message: `Le champ '${key}' ne peut pas être vide.` });
-      }
-    }
-
-    // Construire la requête filtrée
-    const filters = {};
-    validFields.forEach((field) => {
-      if (queryParams[field]) {
-        filters[field] = queryParams[field];
-      }
-    });
-
-    // Exécuter la requête filtrée
-    const articles = await db('articles').where(filters).select('*');
-
-    // Retourner les inscriptions trouvées
     res.json(articles);
   } catch (error) {
-    // Gérer les erreurs
-    res.status(500).json({ message: 'Erreur lors de la récupération des inscriptions.', error: error.message });
+    console.error(error);
+    res.status(500).json({ message: 'Erreur du serveur' });
   }
-})
+});
 
+//Route get pour les articles id
+
+app.get('/api/articles/:id', async (req, res) => {
+  try {
+    const { id } = req.params; // Récupérer l'id de l'article depuis les paramètres de l'URL
+
+    // Récupérer l'article avec l'id spécifié
+    const article = await db('articles')
+      .select('id', 'title', 'content', 'image_url', 'views', 'created_ad')
+      .where('id', id)
+      .first(); // Utiliser .first() pour obtenir un seul article
+
+    if (!article) {
+      return res.status(404).json({ message: 'Article non trouvé' });
+    }
+
+    res.json(article);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: 'Erreur du serveur' });
+  }
+});
 /**
  * Route POST : Ajouter un nouveau message de contact
  * Cette route permet de recevoir un message via une requête POST.
@@ -352,6 +360,7 @@ function valideUsername(username) {
 
   return usernamePattern.test(username)
 }
+
 
 // Démarre le serveur et écoute les requêtes sur le port défini
 app.listen(PORT, () => {
