@@ -406,33 +406,27 @@ function ajouterArticleIndex(article) {
         const li = document.createElement('li');
 
         li.innerHTML = `
-            <div class="card">
+            <div class="card couleur-bg">
+                <div class="card-content">
+                    <div class="media">
+                        <div class="media-content couleur-textes">
+                            <p class="title is-4 couleur-textes">${article.title}</p>
+                        </div>
+                    </div>
+                </div
                 <div class="card-image">
                     <figure class="image">
                         <img src="${article.image_url || 'https://bulma.io/assets/images/placeholders/1280x960.png'}" alt="Image">
                     </figure>
                 </div>
-                <div class="card-content">
-                    <div class="media">
-                        <div class="media-left">
-                            <figure class="image is-48x48">
-                                <img src="${article.avatar || 'https://bulma.io/assets/images/placeholders/96x96.png'}" alt="Avatar">
-                            </figure>
-                        </div>
-                        <div class="media-content">
-                            <p class="title is-4">${article.title}</p>
-                            <p class="subtitle is-6">@${article.author}</p>
-                        </div>
-                    </div>
-                    <div class="content">
-                        ${article.content}
-                        <br />
-                        <time datetime="${article.date}">${new Date(article.date).toLocaleString()}</time>
-                    </div>
-                </div>
             </div>
             <br>
         `;
+
+        // Ajout de l'événement de clic pour afficher le modal
+        li.addEventListener('click', function() {
+            openModal(article);
+        });
 
         listeArticles.appendChild(li);
     } else {
@@ -440,7 +434,7 @@ function ajouterArticleIndex(article) {
     }
 }
 
-// Call the function to load articles when the page loads
+
 if (document.getElementById("listeArticles")) {
     chargerArticlesIndex();
 } else {
