@@ -406,7 +406,7 @@ function ajouterArticleIndex(article) {
         const li = document.createElement('li');
 
         li.innerHTML = `
-            <div class="card" href="#">
+            <div class="card">
                 <div class="card-image">
                     <figure class="image">
                         <img src="${article.image_url || 'https://bulma.io/assets/images/placeholders/1280x960.png'}" alt="Image">
@@ -800,7 +800,7 @@ function valideUsername(username) {
 
 function openModal(article) {
     // Remplir le modal avec les informations de l'article
-    document.getElementById("modalImage").imageUrl = article.image_Url
+    document.getElementById("modalImage").imageUrl = article.image_url;
     document.getElementById("modalTitle").textContent = article.title;
     document.getElementById("modalContent").textContent = article.content;
     document.getElementById("modalAuthor").textContent = `Auteur: ${article.username}`;
@@ -814,6 +814,8 @@ function openModal(article) {
     const modal = document.getElementById("articleModal");
     modal.classList.add("is-active");
 
+    updateViewcount(article);
+
     // Ajouter l'événement pour fermer le modal
     const closeButton = document.querySelector(".delete");
     closeButton.addEventListener('click', closeModal);
@@ -822,4 +824,62 @@ function openModal(article) {
 function closeModal() {
     const modal = document.getElementById("articleModal");
     modal.classList.remove("is-active");
+}
+
+function updateViewcount(article) {
+    const updatedArticle = {
+        id: article.id, // This is used for the endpoint and can be omitted from the body
+        title: article.title,
+        content: article.content,
+        image_url: article.image_url,
+        views: article.views + 1, // Increment the view count
+        adminId: article.admin_id // Ensure correct property name
+    };
+
+    fetch(`/api/articles/${article.id}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(updatedArticle)
+    })
+    .then(response => {
+        if (response.ok) {
+            console.log(`View count updated for article ID: ${article.id}`);
+        } else {
+            console.error('Failed to update view count:', response.statusText);
+        }
+    })
+    .catch(error => {
+        if (error.message === 'Failed to fetch') {
+            alert('Server is unavailable. Please check your connection or try again later.');
+        } else {
+            console.error('Error during update request:', error);
+            alert(`An error occurred: ${error.message}`);
+        }
+    });
+}
+
+function ajouterCookie(inscription){
+    document.cookie = `username=${encodeURIComponent(inscription.username)}; path=/;`;
+    document.cookie = `email=${encodeURIComponent(inscription.email)}; path=/;`;
+    document.cookie = `password=${encodeURIComponent(inscription.password)}; path=/;`;
+    document.cookie = `telephone=${encodeURIComponent(inscription.telephone)}; path=/;`;
+    alert("Donnees cookies sauvegardees....")
+}
+
+function afficherCookie() {
+    const cookies = document.cookie.split('; ');
+    
+    if(cookies.length ===1 && cookies[0]===""){
+       alert("Aucun cookie enregistree");
+       return;
+    }
+    const cookieFormates = cookies.map(cookie =>{
+           const [cle, valeur] = cookie.split('=');
+           return `${cle} : ${decodeURIComponent(valeur)}`;
+
+    }).join('\n');
+    
+    alert(`Cookies enregistrees: \n\n ${cookieFormates}`)
+   
+
 }
