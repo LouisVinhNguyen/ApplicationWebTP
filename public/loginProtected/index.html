@@ -54,22 +54,41 @@
   </header>
 
   <main>
-    <section class="hero is-primary is-fullheight">
-      <div class="hero-body">
-        <div class="container">
-          <div class="columns is-centered">
-            <div class="column is-16-tablet is-16-desktop is-16-widescreen">
-              <div class="notification is-primary">
-                <ul id="listeArticles">
-                  <!-- Articles will be added dynamically here -->
-                </ul>
-              </div>
-            </div>
-          </div>
-        </div>
+    <div class="container">
+      <div class="notification is-primary">
+
+        <ul id="listeArticles">
+        </ul>
+
       </div>
-    </section>
+    </div>
+
+
+    <div class="modal is-large" id="articleModal">
+      <div class="modal-background"></div>
+      <div class="modal-card">
+        <header class="modal-card-head">
+          <p id="modalTitle" class="modal-card-title"></p>
+          <button class="delete" aria-label="close"></button>
+        </header>
+        <section class="modal-card-body">
+          <figure class="image">
+            <img id="modalImage" src="" alt="Article Image">
+          </figure>
+          <p id="modalContent"></p>
+        </section>
+        <footer class="modal-card-foot">
+          <div class="">
+            <p id="modalAuthor"></p> 
+            <time id="modalDate"></time>
+          </div>
+        </footer>
+      </div>
+    </div>
+    
+
   </main>
+  
   
 
   <footer>

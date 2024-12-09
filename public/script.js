@@ -406,7 +406,7 @@ function ajouterArticleIndex(article) {
         const li = document.createElement('li');
 
         li.innerHTML = `
-            <div class="card">
+            <div class="card" href="#">
                 <div class="card-image">
                     <figure class="image">
                         <img src="${article.image_url || 'https://bulma.io/assets/images/placeholders/1280x960.png'}" alt="Image">
@@ -416,18 +416,17 @@ function ajouterArticleIndex(article) {
                     <div class="media">
                         <div class="media-content">
                             <p class="title is-4">${article.title}</p>
-                            <p class="subtitle is-6">@${article.username}</p>
                         </div>
-                    </div>
-                    <div class="content">
-                        ${article.content}
-                        <br />
-                        <time>${article.created_ad}</time>
                     </div>
                 </div>
             </div>
             <br>
         `;
+
+        // Ajout de l'événement de clic pour afficher le modal
+        li.addEventListener('click', function() {
+            openModal(article);
+        });
 
         listeArticles.appendChild(li);
     } else {
@@ -796,4 +795,31 @@ function valideUsername(username) {
     const usernamePattern = /^[a-zA-Z0-9_.]+$/;
   
     return usernamePattern.test(username)
+}
+
+
+function openModal(article) {
+    // Remplir le modal avec les informations de l'article
+    document.getElementById("modalImage").imageUrl = article.image_Url
+    document.getElementById("modalTitle").textContent = article.title;
+    document.getElementById("modalContent").textContent = article.content;
+    document.getElementById("modalAuthor").textContent = `Auteur: ${article.username}`;
+    document.getElementById("modalDate").textContent = `Date de publication ${article.created_ad}`
+
+    const modalImage = document.getElementById("modalImage");
+    modalImage.src = article.image_url || 'https://bulma.io/assets/images/placeholders/1280x960.png'; 
+
+
+    // Afficher le modal
+    const modal = document.getElementById("articleModal");
+    modal.classList.add("is-active");
+
+    // Ajouter l'événement pour fermer le modal
+    const closeButton = document.querySelector(".delete");
+    closeButton.addEventListener('click', closeModal);
+}
+
+function closeModal() {
+    const modal = document.getElementById("articleModal");
+    modal.classList.remove("is-active");
 }
