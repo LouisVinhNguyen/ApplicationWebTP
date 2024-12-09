@@ -5,17 +5,18 @@
 <head>
 
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@0.9.3/css/bulma.min.css">
+    <link rel="stylesheet" href="../style.css">
 </head>
 
-<body>
+<body class="couleur-mainbg">
 
-  <header>
+  <header class="couleur-bg2">
 
-    <nav class="navbar" role="navigation" aria-label="main navigation">
+    <nav class="navbar couleur-bg2 couleur-textes" role="navigation" aria-label="main navigation">
       <div class="navbar-brand">
         <a class="navbar-item" href="./index.html">
     
-          <p class="title is-medium">Historia</p>
+          <p class="title is-large is-link couleur-titres">Historia</p>
         </a>
     
         <a role="button" class="navbar-burger" aria-label="menu" aria-expanded="false" data-target="navbarBasicExample">
@@ -26,14 +27,14 @@
         </a>
       </div>
     
-      <div id="navbarBasicExample" class="navbar-menu">
+      <div id="navbarBasicExample" class="navbar-menu couleur-textes">
         <div class="navbar-start">
 
-          <a href="./index.html" class="navbar-item">
+          <a href="./index.html" class="navbar-item couleur-titres">
             Acceuil
           </a>
     
-          <a href="./Contact.html" class="navbar-item">
+          <a href="./Contact.html" class="navbar-item couleur-titres">
             Contact
           </a>
           
@@ -55,38 +56,29 @@
 
   <main>
     <div class="container">
-      <div class="notification is-primary">
+      <div class="notification couleur-mainbg">
 
         <ul id="listeArticles">
         </ul>
 
       </div>
     </div>
+    <div id="articleModal" class="modal is-large">
+      <div class="modal-background "></div>
+      <div class="modal-content ">
+          <div class="box couleur-bg2">
+            <figure class="image is-4by3">
+              <img id="modalImage" src="" alt="Article Image">
+            </figure>
 
-
-    <div class="modal is-large" id="articleModal">
-      <div class="modal-background"></div>
-      <div class="modal-card">
-        <header class="modal-card-head">
-          <p id="modalTitle" class="modal-card-title"></p>
-          <button class="delete" aria-label="close"></button>
-        </header>
-        <section class="modal-card-body">
-          <figure class="image">
-            <img id="modalImage" src="" alt="Article Image">
-          </figure>
-          <p id="modalContent"></p>
-        </section>
-        <footer class="modal-card-foot">
-          <div class="">
-            <p id="modalAuthor"></p> 
-            <time id="modalDate"></time>
+              <h2 id="modalTitle" class="title couleur-titres"></h2>
+              <p class="couleur-titres" id="modalContent"></p>
+              <div class="couleur-titres" id="modalAuthor"></div>
+              <time class="couleur-titres" id="modalDate"></time>
           </div>
-        </footer>
       </div>
-    </div>
-    
-
+      <button class="modal-close is-large" aria-label="close"></button>
+  </div>
   </main>
   
   

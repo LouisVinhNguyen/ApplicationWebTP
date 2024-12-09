@@ -406,12 +406,29 @@ function ajouterArticleIndex(article) {
         const li = document.createElement('li');
 
         li.innerHTML = `
+<<<<<<< HEAD
             <div class="card">
+=======
+<<<<<<< HEAD
+            <div class="card couleur-bg">
+                <div class="card-content">
+                    <div class="media">
+                        <div class="media-content couleur-textes">
+                            <p class="title is-4 couleur-textes">${article.title}</p>
+                        </div>
+                    </div>
+                </div
+=======
+            <div class="card" href="#">
+>>>>>>> c3d1a8e26b207e61651a24d6bda1cc86dc199602
+>>>>>>> f9188874cf8209d24137254ad60911bb52340594
                 <div class="card-image">
                     <figure class="image">
                         <img src="${article.image_url || 'https://bulma.io/assets/images/placeholders/1280x960.png'}" alt="Image">
                     </figure>
                 </div>
+<<<<<<< HEAD
+=======
                 <div class="card-content">
                     <div class="media">
                         <div class="media-content">
@@ -419,6 +436,7 @@ function ajouterArticleIndex(article) {
                         </div>
                     </div>
                 </div>
+>>>>>>> c3d1a8e26b207e61651a24d6bda1cc86dc199602
             </div>
             <br>
         `;
@@ -434,7 +452,7 @@ function ajouterArticleIndex(article) {
     }
 }
 
-// Call the function to load articles when the page loads
+
 if (document.getElementById("listeArticles")) {
     chargerArticlesIndex();
 } else {

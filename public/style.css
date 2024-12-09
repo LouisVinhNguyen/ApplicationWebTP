@@ -1,0 +1,26 @@
+#articleModal .modal-content {
+    width: 80%; 
+    max-width: 1000px;
+    height: auto; 
+}
+
+.couleur-titres{
+    color: #D8491D;
+}
+
+.couleur-textes{
+    
+    color: #7E7C43;
+}
+
+.couleur-mainbg{
+    background-color: #855C3E;
+}
+
+.couleur-bg{
+    background-color: #EEA23B;
+}
+
+.couleur-bg2{
+    background-color: #878E7C;
+}
