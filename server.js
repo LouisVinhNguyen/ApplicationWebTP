@@ -229,6 +229,29 @@ app.delete('/api/users/:id', async (req, res) => {
  * Route GET :
  * Cette route permet de charger les articles sur la page index.html
  */
+app.get('/api/articlesUsers', async (req, res) => {
+  try {
+
+    const articles = await db('articles')
+  .join('users', 'articles.admin_id', '=', 'users.id')
+  .select('articles.*', 'users.username', 'users.email')
+  .debug();  // This will log the SQL query being executed
+
+
+    // Send the fetched articles as JSON
+    res.json(articles);
+  } catch (error) {
+    // Handle errors gracefully
+    res.status(500).json({ message: 'Error fetching articles.', error: error.message });
+  }
+});
+
+
+
+/*
+ * Route GET :
+ * Cette route permet de charger les articles sur la page admin.html
+ */
 
 // Route to fetch articles
 app.get('/api/articles', async (req, res) => {
@@ -383,6 +406,35 @@ app.delete('/api/articles/:id', async (req, res) => {
     // En cas d'erreur, retourne une réponse avec un message d'erreur et un code 500
     res.status(500).json({ message: "Erreur lors de la suppression de l'article.", error: error.message });
   }
+});
+
+
+// Contact
+
+/**
+ * Route POST : Ajouter un nouveau message de contact
+ * Cette route permet de recevoir un message via une requête POST.
+ */
+app.post('/api/contact', async (req, res) => {
+  const { nomC,  courriel, messages } = req.body;
+  console.log("Request received:", req.body);
+
+  if (!nomC || !courriel || !messages) {
+    return res.status(400).json({ message: 'Tous les champs sont obligatoires.' });
+  }
+
+  if (!validateEmail(courriel)) {
+    return res.status(400).json({ message: "L'adresse email est invalide." });
+  }
+
+  try {
+    const [numMes] = await db('contact').insert({ nomC, courriel , messages });
+    const contact = await db('contact').where({ numMes }).first();
+    res.status(201).json(contact);
+  } catch (error) {
+    console.error("Erreur lors de l'ajout :", error.message);
+    res.status(500).json({ message: 'Erreur lors de l’envoi du message.', error: error.message });
+}
 });
 
 

@@ -382,7 +382,7 @@ function supprimerUtilisateur(id, row) {
  */
 
 function chargerArticlesIndex() {
-    fetch('/api/articles')
+    fetch('/api/articlesUsers')
         .then(response => response.json())
         .then(articles => {
             articles.forEach(article => {
@@ -406,6 +406,7 @@ function ajouterArticleIndex(article) {
         const li = document.createElement('li');
 
         li.innerHTML = `
+<<<<<<< HEAD
             <div class="card couleur-bg">
                 <div class="card-content">
                     <div class="media">
@@ -414,11 +415,24 @@ function ajouterArticleIndex(article) {
                         </div>
                     </div>
                 </div
+=======
+            <div class="card" href="#">
+>>>>>>> c3d1a8e26b207e61651a24d6bda1cc86dc199602
                 <div class="card-image">
                     <figure class="image">
                         <img src="${article.image_url || 'https://bulma.io/assets/images/placeholders/1280x960.png'}" alt="Image">
                     </figure>
                 </div>
+<<<<<<< HEAD
+=======
+                <div class="card-content">
+                    <div class="media">
+                        <div class="media-content">
+                            <p class="title is-4">${article.title}</p>
+                        </div>
+                    </div>
+                </div>
+>>>>>>> c3d1a8e26b207e61651a24d6bda1cc86dc199602
             </div>
             <br>
         `;
@@ -612,7 +626,7 @@ function enregistrerModification(row, id) {
     const adminId = row.cells[5].querySelector("input").value;
 
     // Validate inputs
-    if (!title || !content || !imageUrl || !views || !adminId) {
+    if (!title || !content || !views || !adminId) {
         alert("Tous les champs sont obligatoires.");
         return;
     }
@@ -707,6 +721,79 @@ function supprimerArticle(id, row) {
     });
 }
 
+// Route Contact
+
+/*
+ * Route POST /api/contact
+ * Cette route envoi les messages depuis le form contact vers la BDD
+ */
+
+contactForm = document.getElementById("messageContact")
+
+if (contactForm) {
+
+    contactForm.addEventListener("submit", function(event) {
+        event.preventDefault();  // Empêche la soumission du formulaire
+
+        const contact = {
+            nomC: document.getElementById("nomC").value,  
+            courriel: document.getElementById("courriel").value, 
+            messages: document.getElementById("messages").value  
+        };
+
+        console.log(contact);
+
+        // Vérification simple que tous les champs sont remplis
+        if (!contact.nomC || !contact.courriel || !contact.messages) {  
+            alert("Veuillez remplir tous les champs.");
+            return;
+        }
+
+        if (!validateEmail(contact.courriel)) {
+            alert("L'adresse mail saisie n'est pas valide.");
+            return;
+        }
+
+        enregistrerMessage(contact);
+        document.getElementById("messageContact").reset();
+    });
+
+} else {
+    // The form does not exist on this page, so we can safely ignore it.
+    console.log("No form with id 'messageContact' on this page.");
+};
+
+function enregistrerMessage(contact) {
+    fetch('/api/contact', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(contact)
+    })
+    .then(response => {
+        if (!response.ok) {
+            return response.json().then(errorData => {
+                throw new Error(errorData.message || 'Une erreur est survenue.');
+            });
+        }
+        return response.json();
+    })
+    .then(messageFromServeur => {
+        console.log('Message envoyé :', messageFromServeur);
+        // Rediriger vers index.html après succès
+        alert("Votre message a été reçu avec succès.")
+    })
+    .catch(error => {
+        if (error.message === 'Failed to fetch') {
+            console.error('Erreur : Impossible de se connecter au serveur.');
+            alert('Le serveur est inaccessible. Vérifiez votre connexion ou réessayez plus tard.');
+        } 
+        else {
+            // Gérer d'autres types d'erreurs
+            console.error('Erreur lors de l\'enregistrement de l\'inscription :', error);
+            alert(`Une erreur s'est produite : ${error.message}`);
+        }
+    });
+}
 
 ////////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////
@@ -722,4 +809,31 @@ function valideUsername(username) {
     const usernamePattern = /^[a-zA-Z0-9_.]+$/;
   
     return usernamePattern.test(username)
+}
+
+
+function openModal(article) {
+    // Remplir le modal avec les informations de l'article
+    document.getElementById("modalImage").imageUrl = article.image_Url
+    document.getElementById("modalTitle").textContent = article.title;
+    document.getElementById("modalContent").textContent = article.content;
+    document.getElementById("modalAuthor").textContent = `Auteur: ${article.username}`;
+    document.getElementById("modalDate").textContent = `Date de publication ${article.created_ad}`
+
+    const modalImage = document.getElementById("modalImage");
+    modalImage.src = article.image_url || 'https://bulma.io/assets/images/placeholders/1280x960.png'; 
+
+
+    // Afficher le modal
+    const modal = document.getElementById("articleModal");
+    modal.classList.add("is-active");
+
+    // Ajouter l'événement pour fermer le modal
+    const closeButton = document.querySelector(".delete");
+    closeButton.addEventListener('click', closeModal);
+}
+
+function closeModal() {
+    const modal = document.getElementById("articleModal");
+    modal.classList.remove("is-active");
 }
