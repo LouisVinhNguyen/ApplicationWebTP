@@ -24,6 +24,45 @@ app.get('/', (req, res) => {
 // 1. Authentification:
 
 /*
+ * Route GET /api/users
+ * 
+ */
+app.get('/api/users', async (req, res) => {
+  try {
+    // Get query parameters
+    const queryParams = req.query;
+
+    // List of valid fields for filtering users
+    const validFields = ['username', 'email', 'role', 'id'];
+
+    // Check if any fields are invalid or empty
+    for (const [key, value] of Object.entries(queryParams)) {
+      if (validFields.includes(key) && (!value || value.trim() === '')) {
+        return res.status(400).json({ message: `The field '${key}' cannot be empty.` });
+      }
+    }
+
+    // Build filtered query
+    const filters = {};
+    validFields.forEach((field) => {
+      if (queryParams[field]) {
+        filters[field] = queryParams[field];
+      }
+    });
+
+    // Execute the filtered query
+    const users = await db('users').where(filters).select('*');
+
+    // Send the fetched users as JSON
+    res.json(users);
+  } catch (error) {
+    // Handle errors gracefully
+    res.status(500).json({ message: 'Error fetching users.', error: error.message });
+  }
+});
+
+
+/*
 * Route POST /api/register
 * Cette route ajoute des utilisateurs a la table "users"
 */
@@ -112,6 +151,78 @@ app.post('/api/logout', (req, res) => {
     res.json({ message: 'Déconnexion réussie.' });  // Success message
   });
 
+/*
+ * Route PUT : 
+ * Cette route permet de modifier les informations des users
+ */
+app.put('/api/users/:id', async (req, res) => {
+  const { id } = req.params;
+  const { username, email, password, role } = req.body;
+
+  console.log('Received data:', req.body);
+
+  if (!username || !email || !password || !role) {
+    return res.status(400).json({ message: 'All fields are required.' });
+  }
+
+  try {
+    // Check if the user exists
+    const userExists = await db('users').where({ id }).first();
+    if (!userExists) {
+      return res.status(404).json({ message: 'User not found.' });
+    }
+
+    console.log('Attempting to update user with ID:', id);
+    console.log('Updated data:', { username, email, password, role });
+
+    // Perform the update
+    const updated = await db('users')
+      .where({ id })
+      .update({ username, email, password, role })
+      .debug(); // Log the query being executed
+
+    console.log('Rows updated:', updated);
+
+    if (!updated) {
+      return res.status(404).json({ message: 'User not found.' });
+    }
+
+    // Fetch and return the updated user
+    const user = await db('users').where({ id }).first();
+    console.log('Updated user:', user);
+    res.json(user);
+  } catch (error) {
+    console.log('Error updating user:', error);
+    res.status(500).json({ message: 'Error updating user.', error: error.message });
+  }
+});
+
+
+/*
+ * Route DELETE : 
+ * Cette route permet de supprimer les users
+ */
+app.delete('/api/users/:id', async (req, res) => {
+  const { id } = req.params;
+
+  try {
+    // Delete the user corresponding to the given ID
+    const deleted = await db('users').where({ id }).del();
+
+    // If no user is found with this ID, return a 404 error
+    if (!deleted) {
+      return res.status(404).json({ message: "User not found." });
+    }
+
+    // If the deletion is successful, return a 204 No Content status
+    res.status(204).send();
+  } catch (error) {
+    // In case of an error, return an error message and status 500
+    res.status(500).json({ message: 'Error deleting user.', error: error.message });
+  }
+});
+
+
 // 2. Gestion des Articles:
 
 /*
@@ -192,33 +303,60 @@ app.post('/api/articles', async (req, res) => {
  */
 
 app.put('/api/articles/:id', async (req, res) => {
-  // Récupère l'ID de l'article depuis les paramètres de la requête
   const { id } = req.params;
+  const { title, content, image_url, views, adminId } = req.body;
 
-  // Extraction des champs modifiés depuis le corps de la requête
-  const { title, content, imageUrl, views, adminId } = req.body;
+  console.log('Received data:', req.body);
 
-  if (!title || !content || !imageUrl || !views || !adminId) {
-    return res.status(400).json({ message: 'Tous les champs sont obligatoires.' });
+  // Ensure views and adminId are integers
+  const numericViews = parseInt(views, 10);
+  const numericAdminId = parseInt(adminId, 10);
+
+  // Check if values are valid
+  if (isNaN(numericViews) || isNaN(numericAdminId)) {
+    return res.status(400).json({ message: 'Views and Admin ID must be valid numbers.' });
   }
 
-  try {
-    // Met à jour l'article correspondant à l'ID donné
-    const updated = await db('articles').where({ id }).update({ title, content, imageUrl, views, adminId });
+  console.log('Attempting to update article with ID:', id);
 
-    // Si aucun article n'est trouvé avec cet ID, retourne une erreur 404
+  // Check if the article exists
+  const articleExists = await db('articles').where({ id }).first();
+  if (!articleExists) {
+    return res.status(404).json({ message: 'Article non trouvé.' });
+  }
+
+  console.log('Updated data:', { title, content, image_url, views: numericViews, admin_id: numericAdminId });
+
+  try {
+    // Perform the update
+    const updated = await db('articles')
+  .where({ id })
+  .update({
+    title,
+    content,
+    image_url,  // This is fine as is
+    views: numericViews,
+    admin_id: numericAdminId  // Corrected to match the database column name
+  })
+  .debug(); // Log the query being executed
+
+
+    console.log('Rows updated:', updated);
+
     if (!updated) {
       return res.status(404).json({ message: 'Article non trouvé.' });
     }
 
-    // Récupère et renvoie l'article mis à jour
+    // Fetch and return the updated article
     const article = await db('articles').where({ id }).first();
+    console.log('Updated article:', article);
     res.json(article);
   } catch (error) {
-    // En cas d'erreur, retourne une réponse avec un message d'erreur et un code 500
+    console.log('Error updating article:', error);
     res.status(500).json({ message: 'Erreur lors de la mise à jour de l’article.', error: error.message });
   }
 });
+
 
 
 /*

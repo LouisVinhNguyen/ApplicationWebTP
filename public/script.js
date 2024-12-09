@@ -183,6 +183,197 @@ function logoutUser() {
     });
 }
 
+/*
+ * Route GET /api/users :
+ * Cette route permet de charger les users sur la page admin.html
+ */
+function chargerUtilisateursAdmin() {
+    fetch('/api/users')
+        .then(response => response.json())
+        .then(users => {
+            users.forEach(user => {
+                ajouterUtilisateurAdmin(user);
+            });
+        })
+        .catch(error => {
+            if (error.message === 'Failed to fetch') {
+                console.error('Error: Unable to connect to the server.');
+                alert('The server is unavailable. Check your connection or try again later.');
+            } else {
+                console.log('Error fetching users:', error);
+                alert(`An error occurred: ${error.message}`);
+            }
+        });
+}
+
+function ajouterUtilisateurAdmin(user) {
+    if (document.getElementById("tableUsers")) {
+        let table = document.getElementById("tableUsers").getElementsByTagName('tbody')[0];
+        let newRow = table.insertRow();
+        newRow.id = `row-${user.id}`;
+
+        // Insert user data into cells
+        newRow.insertCell(0).textContent = user.id;
+        newRow.insertCell(1).textContent = user.username;
+        newRow.insertCell(2).textContent = user.email;
+        newRow.insertCell(3).textContent = user.password;
+        newRow.insertCell(4).textContent = user.role;
+        newRow.insertCell(5).textContent = user.created_ad;
+
+        // Create action buttons
+        let actionsCell = newRow.insertCell(6);
+
+        // Edit button
+        let editButton = document.createElement("button");
+        editButton.className = "button is-warning is-small";
+        editButton.textContent = "Modifier";
+
+        // Delete button
+        let deleteButton = document.createElement("button");
+        deleteButton.className = "button is-danger is-small";
+        deleteButton.textContent = "Supprimer";
+
+        deleteButton.onclick = function() {
+            supprimerUtilisateur(user.id, newRow);
+        };
+
+        editButton.onclick = function() {
+            activerModeEditionUtilisateur(newRow, user.id); // Pass the entire row to edit mode
+        };
+
+        actionsCell.appendChild(editButton);
+        actionsCell.appendChild(deleteButton);
+    } else {
+        console.log("Aucune table avec ID 'tableUsers'.");
+    }
+}
+
+// Call the function to load users when the page loads
+if (document.getElementById("tableUsers")) {
+    chargerUtilisateursAdmin();
+} else {
+    console.log("Aucune table avec ID 'tableUsers'.");
+}
+
+/*
+ * Route PUT /api/users/:id :
+ * This route is for updating user data
+ */
+function activerModeEditionUtilisateur(row, id) {
+    const username = row.cells[1].textContent;
+    const email = row.cells[2].textContent;
+    const password = row.cells[3].textContent;
+    const role = row.cells[4].textContent;
+
+    // Transform each cell into an input field
+    row.cells[1].innerHTML = `<input type="text" value="${username}" class="input is-small">`;
+    row.cells[2].innerHTML = `<input type="email" value="${email}" class="input is-small">`;
+    row.cells[3].innerHTML = `<input type="text" value="${password}" class="input is-small">`;
+    row.cells[4].innerHTML = `<input type="text" value="${role}" class="input is-small">`;
+
+    const actionsCell = row.cells[6];
+    actionsCell.innerHTML = "";  // Clear current content
+
+    let saveButton = document.createElement("button");
+    saveButton.className = "button is-primary is-small";
+    saveButton.textContent = "Enregistrer";
+
+    saveButton.onclick = function() {
+        enregistrerModificationUtilisateur(row, id);
+    };
+
+    actionsCell.appendChild(saveButton);
+}
+
+function enregistrerModificationUtilisateur(row, id) {
+    const username = row.cells[1].querySelector("input").value;
+    const email = row.cells[2].querySelector("input").value;
+    const password = row.cells[3].querySelector("input").value;
+    const role = row.cells[4].querySelector("input").value;
+
+    // Validate inputs
+    if (!username || !email || !password || !role) {
+        alert("Tous les champs sont obligatoires.");
+        return;
+    }
+
+    row.cells[1].textContent = username;
+    row.cells[2].textContent = email;
+    row.cells[3].textContent = password;
+    row.cells[4].textContent = role;
+
+    const actionsCell = row.cells[6];
+    actionsCell.innerHTML = "";
+
+    let editButton = document.createElement("button");
+    editButton.className = "button is-warning is-small";
+    editButton.textContent = "Modifier";
+    editButton.onclick = function() {
+        activerModeEditionUtilisateur(row, id);
+    };
+
+    let deleteButton = document.createElement("button");
+    deleteButton.className = "button is-danger is-small";
+    deleteButton.textContent = "Supprimer";
+    deleteButton.onclick = function() {
+        supprimerUtilisateur(id, row);
+    };
+
+    actionsCell.appendChild(editButton);
+    actionsCell.appendChild(deleteButton);
+
+    updateUtilisateur(id, { username, email, password, role });
+}
+
+function updateUtilisateur(id, user) {
+    fetch(`/api/users/${id}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(user)
+    })
+    .then(response => {
+        if (!response.ok) {
+            console.log('Erreur lors de la mise à jour de l\'utilisateur :', response.statusText);
+        }
+    })
+    .catch(error => {
+        if (error.message === 'Failed to fetch') {
+            console.error('Erreur : Impossible de se connecter au serveur.');
+            alert('Le serveur est inaccessible. Vérifiez votre connexion ou réessayez plus tard.');
+        } else {
+            console.log('Erreur lors de la requête de mise à jour :', error);
+            alert(`Une erreur s'est produite : ${error.message}`);
+        }
+    });
+}
+
+/*
+ * Route DELETE /api/users/:id :
+ * This route is for deleting users
+ */
+function supprimerUtilisateur(id, row) {
+    fetch(`/api/users/${id}`, {
+        method: 'DELETE',
+    })
+    .then(response => {
+        if (response.status === 404) {
+            alert("L'utilisateur que vous essayez de supprimer n'existe pas.");
+        } else if (response.ok) {
+            row.remove();  // Remove the row from the table
+        }
+    })
+    .catch(error => {
+        if (error.message === 'Failed to fetch') {
+            console.error('Erreur : Impossible de se connecter au serveur.');
+            alert('Le serveur est inaccessible. Vérifiez votre connexion ou réessayez plus tard.');
+        } else {
+            console.error('Erreur lors de la suppression de l\'utilisateur :', error);
+            alert(`Une erreur s'est produite : ${error.message}`);
+        }
+    });
+}
+
+
 // 2. Gestion des Articles:
 
 /*
@@ -319,7 +510,7 @@ function ajouterArticleAdmin(article) {
 }
 
 // Call the function to load articles when the page loads
-if (document.getElementById("listeArticles")) {
+if (document.getElementById("tableArticles")) {
     chargerArticlesAdmin();
 } else {
     console.log("Aucune liste avec ID 'listeArticles'.");
@@ -401,7 +592,6 @@ function activerModeEdition(row, id) {
     row.cells[3].innerHTML = `<input type="text" value="${imageUrl}" class="input is-small">`;
     row.cells[4].innerHTML = `<input type="number" value="${views}" class="input is-small">`;
     row.cells[5].innerHTML = `<input type="number" value="${adminId}" class="input is-small">`;
-    row.cells[6].innerHTML = `<input type="text" value="${createdDate}" class="input is-small" disabled>`; // Date should not be editable
 
     // Remplacer les boutons d'action par un bouton "Enregistrer"
     const actionsCell = row.cells[7];
@@ -467,10 +657,17 @@ function enregistrerModification(row, id) {
 
 // Function to send the PUT request to the server and update the article
 function updateArticle(id, article) {
+
+    const updatedArticle = {
+        ...article,
+        views: parseInt(article.views, 10),  // Convert views to integer
+        adminId: parseInt(article.adminId, 10)  // Convert adminId to integer
+    };
+
     fetch(`/api/articles/${id}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(article)
+        body: JSON.stringify(updatedArticle)
     })
     .then(response => {
         if (!response.ok) {
