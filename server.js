@@ -222,11 +222,21 @@ app.delete('/api/users/:id', async (req, res) => {
  */
 app.get('/api/articlesUsers', async (req, res) => {
   try {
+    const { search } = req.query
+    let articles;
 
-    const articles = await db('articles')
-  .join('users', 'articles.admin_id', '=', 'users.id')
-  .select('articles.*', 'users.username', 'users.email')
-  .debug();  // This will log the SQL query being executed
+    if(search) {
+      articles = await db('articles')
+      .join('users', 'articles.admin_id', '=', 'users.id')
+      .select('articles.*', 'users.username', 'users.email')
+      .where('title', 'like', `%${search}%`)
+      .debug();  // This will log the SQL query being executed
+    } else {
+      articles = await db('articles')
+      .join('users', 'articles.admin_id', '=', 'users.id')
+      .select('articles.*', 'users.username', 'users.email')
+      .debug();  // This will log the SQL query being executed
+    }
 
 
     // Send the fetched articles as JSON

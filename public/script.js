@@ -375,8 +375,15 @@ function supprimerUtilisateur(id, row) {
  * Cette route permet de charger les articles sur la page index.html
  */
 
-function chargerArticlesIndex() {
-    fetch('/api/articlesUsers')
+function chargerArticlesIndex(search= '') {
+    const url = search ? `/api/articlesUsers?search=${search}` : '/api/articlesUsers'
+
+    const listeArticles = document.getElementById("listeArticles");
+    if (listeArticles) {
+        listeArticles.innerHTML = '';
+    }
+
+    fetch(url)
         .then(response => response.json())
         .then(articles => {
             articles.forEach(article => {
@@ -434,6 +441,11 @@ if (document.getElementById("listeArticles")) {
 } else {
     console.log("Aucune liste avec ID 'listeArticles'.");
 }
+
+document.getElementById("searchBar").addEventListener("input", function(){
+    const searchValue = this.value;
+    chargerArticlesIndex(searchValue)
+})
 
 function chargerArticlesAdmin() {
     fetch('/api/articles')
