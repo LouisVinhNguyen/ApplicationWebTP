@@ -88,29 +88,24 @@ const loginForm = document.getElementById("loginForm")
 if (loginForm) {
 
     loginForm.addEventListener("submit", function(event) {
-        event.preventDefault();  // Prevent form from submitting
+        event.preventDefault();
 
-        // Grab values from the form
         const login = {
             email: document.getElementById("email").value,
             password: document.getElementById("password").value
         };
-
-        // Check if both fields are filled
+    
         if (!login.email || !login.password) {
             alert("Veuillez remplir tous les champs.");
             return;
         }
-
-        // Validate email format
+    
         if (!validateEmail(login.email)) {
             alert("L'adresse email saisie n'est pas valide.");
             return;
         }
-
-        console.log("Form validation passed, calling loginUser with data:", login);
-
-        // Call function to verify user credentials
+    
+        ajouterCookie(login)
         loginUser(login);
     });
 
@@ -134,12 +129,11 @@ function loginUser(login) {
         return response.json();
     })
     .then(data => {
-        console.log('Login successful:', data);
-        // Redirect to home page or user dashboard
+        console.log('Connexion réussi:', data);
         window.location.href = '/loginProtected/index.html';
     })
     .catch(error => {
-        console.error('Error during login:', error);
+        console.error("Une erreur s'est produite lors de la connexion:", error);
         alert(`Une erreur s'est produite : ${error.message}`);
     });
 }
@@ -519,13 +513,13 @@ if (articleForm) {
     articleForm.addEventListener("submit", function(event) {
         event.preventDefault(); // Prevent form submission
         const article = {
-            username: document.getElementById("username").value,
+            admin_id: getCookie('userID'),
             title: document.getElementById("title").value,
             content: document.getElementById("content").value,
             image_url: document.getElementById("image_url").value || null // Use null if empty
         };
 
-        if (!article.username || !article.title || !article.content) {
+        if (!article.title || !article.content) {
             alert("Veuillez remplir tous les champs.");
             return;
         }
@@ -781,6 +775,72 @@ function enregistrerMessage(contact) {
     });
 }
 
+// fonctionnalites pour les cookies
+function ajouterCookie(login){
+    // Envoie une requête GET à l'API avec l'email comme paramètre
+    fetch(`/api/users?email=${encodeURIComponent(login.email)}`, {
+        method: 'GET',
+    })
+    .then(response => {
+        if (!response.ok) {
+            // Si la réponse est incorrecte (erreur 404 ou autre)
+            throw new Error('User not found or error fetching user');
+        }
+        return response.json(); // Par défaut, la réponse est au format JSON
+    })
+    .then(data => {
+        console.log('User data:', data); // Affiche les informations de l'utilisateur
+        
+        // Supposons que data est un tableau avec un seul utilisateur correspondant
+        const user = data[0];
+
+        // Crée des cookies pour chaque champ utilisateur (assurez-vous que vous n'ajoutez pas de données sensibles comme le mot de passe)
+        document.cookie = `userID=${encodeURIComponent(user.id)}; path=/;`;
+        document.cookie = `username=${encodeURIComponent(user.username)}; path=/;`;
+        document.cookie = `email=${encodeURIComponent(user.email)}; path=/;`;
+        document.cookie = `role=${encodeURIComponent(user.role)}; path=/;`;
+        
+        // Si vous avez d'autres informations utilisateur, vous pouvez les ajouter de la même manière :
+        // document.cookie = `otherField=${encodeURIComponent(user.otherField)}; path=/;`;
+
+        // Exemple de message confirmant que les cookies ont été créés
+        alert("User information has been stored in cookies.");
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        alert('An error occurred: ' + error.message);  // Affiche un message d'erreur
+    });
+}
+
+document.getElementById("afficherCookies").addEventListener("click", function(){
+    const cookies = document.cookie.split('; ');
+    
+    if(cookies.length ===1 && cookies[0]===""){
+       alert("Aucun cookie enregistree");
+       return;
+    }
+    const cookieFormates = cookies.map(cookie =>{
+           const [cle, valeur] = cookie.split('=');
+           return `${cle} : ${decodeURIComponent(valeur)}`;
+
+    }).join('\n');
+    
+    alert(`Cookies enregistrees: \n\n ${cookieFormates}`)
+   
+
+})
+
+function getCookie(name) {
+    const cookies = document.cookie.split('; ');  // Divise la chaîne de cookies par le séparateur ';'
+    for (let i = 0; i < cookies.length; i++) {
+        const [cookieName, cookieValue] = cookies[i].split('='); // Sépare chaque cookie en nom et valeur
+        if (cookieName === name) {
+            return decodeURIComponent(cookieValue); // Décode la valeur et retourne le cookie
+        }
+    }
+    return null; // Retourne null si le cookie n'existe pas
+}
+
 ////////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////
@@ -814,6 +874,8 @@ function openModal(article) {
     const modal = document.getElementById("articleModal");
     modal.classList.add("is-active");
 
+    updateViewcount(article);
+
     // Ajouter l'événement pour fermer le modal
     const closeButton = document.querySelector(".delete");
     closeButton.addEventListener('click', closeModal);
@@ -822,4 +884,37 @@ function openModal(article) {
 function closeModal() {
     const modal = document.getElementById("articleModal");
     modal.classList.remove("is-active");
+}
+
+function updateViewcount(article) {
+    const updatedArticle = {
+        id: article.id,
+        title: article.title,
+        content: article.content,
+        image_url: article.image_url,
+        views: article.views + 1,
+        adminId: article.admin_id
+    };
+
+    // Send the filtered data to the server
+    fetch(`/api/articles/${article.id}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(updatedArticle)
+    })
+    .then(response => {
+        if (!response.ok) {
+            return response.json().then(data => {
+                console.error('Server Response:', data);
+                throw new Error(data.message || response.statusText);
+            });
+        }
+        return response.json();
+    })
+    .then(data => {
+        console.log('Successfully updated article:', data);
+    })
+    .catch(error => {
+        console.error('Error updating view count:', error);
+    });
 }

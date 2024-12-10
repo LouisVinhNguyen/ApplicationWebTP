@@ -1,22 +1,13 @@
 const express = require('express');
-
 const bodyParser = require('body-parser');
-
-const db = require('./knex')
-
-const app = express();
-
-const PORT = 3000;
-
+const db = require('./knex');
 const bcrypt = require('bcrypt');
-
-app.use(bodyParser.json());
-
 const path = require('path');
 
-const cookieParser = require('cookie-parser');
-app.use(cookieParser());
+const app = express();
+const PORT = 3000;
 
+app.use(bodyParser.json());
 app.use(express.static(path.join(__dirname, 'public')));
 
 app.get('/', (req, res) => {
@@ -125,10 +116,6 @@ app.post('/api/login', async (req, res) => {
       return res.status(400).json({ message: 'Tous les champs sont obligatoires.' });
   }
 
-  if (!validateEmail(email)) {
-      return res.status(400).json({ message: "L'adresse email est invalide." });
-  }
-
   try {
       const user = await db('users').where({ email }).first();
       if (!user) {
@@ -138,21 +125,7 @@ app.post('/api/login', async (req, res) => {
       const passwordMatch = await bcrypt.compare(password, user.password);
       if (!passwordMatch) {
           return res.status(401).json({ message: 'Mot de passe incorrect.' });
-      }
-
-      // Create a session or token
-      const sessionData = {
-          userId: user.id,
-          email: user.email
-      };
-
-      // Set a signed cookie
-      res.cookie('session', JSON.stringify(sessionData), {
-          httpOnly: true, // Prevent access by JavaScript
-          secure: true,  // Use HTTPS
-          signed: true,  // Sign the cookie
-          maxAge: 24 * 60 * 60 * 1000 // 1 day
-      });
+      }   
 
       res.json({ message: 'Connexion réussie' });
   } catch (error) {
@@ -166,8 +139,8 @@ app.post('/api/login', async (req, res) => {
  * Cette route permet deconnecte l'utilisateur
  */
 app.post('/api/logout', (req, res) => {
-    res.json({ message: 'Déconnexion réussie.' });  // Success message
-  });
+  res.json({ message: 'Déconnexion réussie.' });
+});
 
 /*
  * Route PUT : 
@@ -312,13 +285,9 @@ app.get('/api/articles', async (req, res) => {
  */
 
 app.post('/api/articles', async (req, res) => {
-  const { username, title, content, image_url } = req.body;
+  const { admin_id, title, content, image_url } = req.body;
 
-  if (!valideUsername(username)) {
-    return res.status(400).json({ message: "Votre username ne peut contenir que les caractères suivant: a-z 0-9 _" });
-  };
-
-  if (!username || !title || !content) {
+  if (!title || !content) {
       return res.status(400).json({ message: 'Veuillez remplir tous les champs requis.' });
   };
 
@@ -328,7 +297,7 @@ app.post('/api/articles', async (req, res) => {
           content,
           image_url: image_url || null, // Use null if no image URL is provided
           views: 0,
-          admin_id: 0
+          admin_id
       });
       const article = await db('articles').where({ id }).first();
       res.status(201).json(article);
